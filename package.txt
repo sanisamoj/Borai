@@ -1,0 +1,3 @@
+v0.1.0
+
+ - Implementação da estrutura do projeto, como repositórios e dataclasses pertinentes.
