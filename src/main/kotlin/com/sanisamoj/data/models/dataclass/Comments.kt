@@ -8,5 +8,6 @@ data class Comments(
     val eventId: String,
     val userId: String,
     val comment: String,
+    val parentId: String? = null,
     val createdAt: String
 )

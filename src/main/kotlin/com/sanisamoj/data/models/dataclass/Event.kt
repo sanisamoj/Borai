@@ -6,12 +6,15 @@ import java.time.LocalDateTime
 
 data class Event(
     @BsonId val id: ObjectId = ObjectId(),
+    val promoterId: String,
     val name: String,
     val description: String,
     val imageUrl: String,
-    val localization: String,
-    val date: String,
-    val type: String,
-    val comments: List<String>,
+    val otherImages: List<String>,
+    val address: Address,
+    val date: LocalDateTime,
+    val presences: Int = 0,
+    val type: List<String>,
+    val status: String,
     val createdAt: LocalDateTime = LocalDateTime.now()
 )

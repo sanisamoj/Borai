@@ -26,6 +26,7 @@ object GlobalContext {
 
     const val MAX_UPLOAD_PROFILE_IMAGE: Int = 1
     const val MAX_HEADERS_SIZE: Int = 5 * 1024 * 1024 // 5MB
+    val MIME_TYPE_ALLOWED: List<String> = listOf("jpeg", "png", "jpg", "gif")
 
     fun getDatabaseRepository(): DatabaseRepository = serverContainer.databaseRepository
     fun getSessionRepository(): SessionRepository = serverContainer.sessionRepository

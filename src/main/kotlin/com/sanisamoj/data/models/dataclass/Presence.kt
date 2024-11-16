@@ -7,5 +7,6 @@ data class Presence(
     @BsonId val id: ObjectId = ObjectId(),
     val eventId: String,
     val userId: String,
+    val status: String,
     val createdAt: String
 )

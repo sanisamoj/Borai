@@ -9,7 +9,7 @@ o que limita o alcance de seus eventos dentro da plataforma.
 O sistema ainda utiliza microserviços para a melhor usabilidade, como o [NotifyBot](https://github.com/sanisamoj/NotifyBot) para envio de mensagens
 ou notificações para usuários, e o [EventLoggerServer](https://github.com/sanisamoj/EventLoggerServer) para centralização de logs, como erros e avisos.
 
-> Microserviços foram utilizados, pois os outros projetos do meu repositórios utilizam esses serviços em comum.
+> Microserviços foram utilizados, pois os outros projetos do meu repositório utilizam esses serviços em comum.
 
 ## Funcionalidades
 Há a possibilidade de visualizar e encontrar eventos a partir de filtros pré-determinados, como local, horário, tipo de evento ou eventos
@@ -21,7 +21,7 @@ e quantidade de eventos feitos e etc.
 - **É possível encontrar e visualizar eventos utilizando filtros pré-determinados, como:**
 
     - Localização.
-    - Horário.
+    - Horário ou data.
     - Eventos criados por contas específicas.
 
 
@@ -33,3 +33,9 @@ e quantidade de eventos feitos e etc.
 
 
 - **Insígnias para Participantes e Promotores**
+
+
+- Nos **eventos** é possível:
+
+  - Ver as contas públicas que marcaram presença no evento.
+  - Visualizar informações como, local, data, horário, descrição, fotos, informações do organizador e o tipo de evento.
