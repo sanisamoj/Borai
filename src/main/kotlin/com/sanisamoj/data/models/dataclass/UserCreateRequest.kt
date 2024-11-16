@@ -10,7 +10,7 @@ data class UserCreateRequest(
     val email: String,
     val password: String,
     val phone: String,
-    val type: String = AccountType.Participant.name,
+    val type: String = AccountType.PARTICIPANT.name,
     val doc: Doc? = null,
     val address: Address? = null
 )

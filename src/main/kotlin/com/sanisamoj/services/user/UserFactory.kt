@@ -1,6 +1,8 @@
 package com.sanisamoj.services.user
 
 import com.sanisamoj.data.models.dataclass.*
+import com.sanisamoj.data.models.enums.AccountStatus
+import com.sanisamoj.data.models.enums.AccountType
 import org.mindrot.jbcrypt.BCrypt
 import kotlin.String
 
@@ -25,6 +27,8 @@ object UserFactory {
             email = userCreateRequest.email,
             phone = userCreateRequest.phone,
             password = hashedPassword,
+            type = userCreateRequest.type,
+            accountStatus = AccountStatus.Inactive.name
         )
     }
 }

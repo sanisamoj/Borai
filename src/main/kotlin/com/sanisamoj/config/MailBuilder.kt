@@ -2,14 +2,19 @@ package com.sanisamoj.config
 
 import kotlinx.html.a
 import kotlinx.html.body
+import kotlinx.html.br
 import kotlinx.html.div
 import kotlinx.html.h1
+import kotlinx.html.h2
+import kotlinx.html.h3
 import kotlinx.html.head
 import kotlinx.html.html
+import kotlinx.html.li
 import kotlinx.html.p
 import kotlinx.html.stream.createHTML
 import kotlinx.html.style
 import kotlinx.html.title
+import kotlinx.html.ul
 import kotlinx.html.unsafe
 
 object MailBuilder {
@@ -83,11 +88,53 @@ object MailBuilder {
                 div("container") {
                     h1 { +"Olá, $username!" }
                     p {
-                        +"Obrigado por se juntar ao NBot! Por favor, confirme seu email para ativar sua conta. Clique no botão abaixo:"
+                        +"Obrigado por se juntar ao Borai! Por favor, confirme seu email para ativar sua conta. Clique no botão abaixo:"
                     }
                     a(href = activationLink, classes = "button") { +"Ativar Conta" }
                     p {
                         +"Este link é válido por 5 minutos. Se não solicitou este registro, ignore este email."
+                    }
+                    div("footer") {
+                        +"© 2024 Sanisamoj. Todos os direitos reservados."
+                    }
+                }
+            }
+        }
+    }
+
+    fun buildAccountActivationMail(username: String): String {
+        return createHTML().html {
+            head {
+                title("Ativação de Conta")
+                style {
+                    unsafe { +activationAccountMailCssStyles }
+                }
+            }
+            body {
+                div("container") {
+                    h1 { +"Bem-vindo ao Borai, $username!" }
+                    p {
+                        +"Obrigado por se registrar no Borai! Sua conta foi ativada com sucesso."
+                    }
+                    div("info") {
+                        h2 { +"Sobre o Borai" }
+                        p {
+                            +"Este é um sistema de gerenciamento e armazenamento de eventos. No qual você consegue descobrir eventos próximos a você, marcar presença, comentar avaliar e etc no eventos."
+                        }
+                        h3 { +"Funcionalidades Básicas" }
+                        ul {
+                            li { +"Criar e gerenciar eventos." }
+                            li { +"Marcar presença em eventos." }
+                            li { +"Comentar em eventos criados." }
+                            li { +"Avaliar eventos e contar Promoters." }
+                            li { +"Buscar eventos a partir de filtros específicos." }
+                            li { +"Receber pontuações/Insígnias em condições específicas de uso da plataforma." }
+                        }
+                    }
+                    p {
+                        +"Atenciosamente,"
+                        br()
+                        +"Equipe Sanisamoj"
                     }
                     div("footer") {
                         +"© 2024 Sanisamoj. Todos os direitos reservados."

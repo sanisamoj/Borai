@@ -3,7 +3,7 @@ package com.sanisamoj.data.models.interfaces
 import com.sanisamoj.data.models.dataclass.MediaStorage
 import com.sanisamoj.data.models.dataclass.User
 import com.sanisamoj.database.mongodb.OperationField
-import io.ktor.http.content.MultiPartData
+import io.ktor.http.content.*
 import java.io.File
 
 interface DatabaseRepository {

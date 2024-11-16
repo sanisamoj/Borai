@@ -2,6 +2,7 @@ package com.sanisamoj
 
 import com.sanisamoj.config.Config
 import com.sanisamoj.pluguins.configureHTTP
+import com.sanisamoj.pluguins.configureRateLimit
 import com.sanisamoj.pluguins.configureRouting
 import com.sanisamoj.pluguins.configureSecurity
 import com.sanisamoj.pluguins.configureSerialization
@@ -16,6 +17,7 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
+    configureRateLimit()
     configureSerialization()
     configureHTTP()
     configureSecurity()

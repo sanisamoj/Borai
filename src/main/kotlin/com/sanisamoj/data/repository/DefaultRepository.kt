@@ -9,7 +9,7 @@ import com.sanisamoj.database.mongodb.CollectionsInDb
 import com.sanisamoj.database.mongodb.Fields
 import com.sanisamoj.database.mongodb.MongodbOperations
 import com.sanisamoj.database.mongodb.OperationField
-import io.ktor.http.content.MultiPartData
+import io.ktor.http.content.*
 import org.bson.types.ObjectId
 import java.io.File
 

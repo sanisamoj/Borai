@@ -5,6 +5,7 @@ import com.sanisamoj.data.models.dataclass.CustomException
 import com.sanisamoj.data.models.dataclass.User
 import com.sanisamoj.data.models.dataclass.UserCreateRequest
 import com.sanisamoj.data.models.dataclass.UserResponse
+import com.sanisamoj.data.models.enums.AccountType
 import com.sanisamoj.data.models.enums.Errors
 import com.sanisamoj.data.models.interfaces.DatabaseRepository
 
@@ -29,6 +30,8 @@ class UserService(
     }
 
     private fun verifyUserCreateRequest(userCreateRequest: UserCreateRequest) {
+        if(userCreateRequest.type == AccountType.MODERATOR.name) throw CustomException(Errors.UnableToComplete)
+
         val validations = mapOf(
             "Name" to userCreateRequest.username,
             "Email" to userCreateRequest.email,

@@ -3,14 +3,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.example</groupId>
-    <artifactId>com-sanisamoj-borai</artifactId>
-    <version>0.0.1</version>
-    <name>com.sanisamoj.borai</name>
-    <description>com.sanisamoj.borai</description>
+    <artifactId>borai</artifactId>
+    <version>0.1.0</version>
+    <name>Borai</name>
+    <description>Borai</description>
     <properties>
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin_version>2.0.21</kotlin_version>
-        <ktor_version>3.0.1</ktor_version>
+        <ktor_version>2.3.12</ktor_version>
         <logback_version>1.4.14</logback_version>
         <slf4j_version>2.0.9</slf4j_version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -89,6 +89,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- jwt-->
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-server-auth-jwt-jvm</artifactId>
+            <version>2.3.12</version>
+        </dependency>
+
         <!--.env-->
         <dependency>
             <groupId>io.github.cdimascio</groupId>
@@ -152,13 +159,6 @@
             <version>1.1</version>
         </dependency>
 
-        <!--rate-limit -->
-        <dependency>
-            <groupId>io.ktor</groupId>
-            <artifactId>ktor-server-rate-limit-jvm</artifactId>
-            <version>2.3.12</version>
-        </dependency>
-
         <!-- jedis-->
         <dependency>
             <groupId>redis.clients</groupId>
@@ -171,6 +171,13 @@
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-html-jvm</artifactId>
             <version>0.8.0</version>
+        </dependency>
+
+        <!--rate-limit -->
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-server-rate-limit-jvm</artifactId>
+            <version>2.3.12</version>
         </dependency>
 
 

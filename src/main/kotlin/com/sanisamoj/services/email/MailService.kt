@@ -18,4 +18,11 @@ class MailService(
         mailRepository.sendEmail(sendEmailData)
     }
 
+    fun sendAccountActivationMail(username: String, to: String) {
+        val text: String = MailBuilder.buildAccountActivationMail(username)
+        val topic: String = GlobalContext.globalWarnings.welcome
+        val sendEmailData = SendEmailData(to, topic, text, true)
+        mailRepository.sendEmail(sendEmailData)
+    }
+
 }

@@ -11,5 +11,10 @@ data class User(
     val email: String,
     val phone: String,
     val password: String,
+    val type: String,
+    val accountStatus: String,
+    val public: Boolean = true,
+    val followers: Followers = Followers(),
+    val validationCode: Int? = null,
     val createdAt: LocalDateTime = LocalDateTime.now()
 )
