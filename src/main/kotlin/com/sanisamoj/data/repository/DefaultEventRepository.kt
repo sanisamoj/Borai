@@ -2,6 +2,7 @@ package com.sanisamoj.data.repository
 
 import com.sanisamoj.data.models.dataclass.CustomException
 import com.sanisamoj.data.models.dataclass.Event
+import com.sanisamoj.data.models.dataclass.Presence
 import com.sanisamoj.data.models.dataclass.SearchEventFilters
 import com.sanisamoj.data.models.dataclass.SearchEventNearby
 import com.sanisamoj.data.models.enums.Errors
@@ -101,5 +102,64 @@ class DefaultEventRepository: EventRepository {
             pageNumber = filters.page,
             query = query
         )
+    }
+
+    override suspend fun incrementPresence(eventId: String) {
+        MongodbOperations().incrementField<Event>(
+            collectionName = CollectionsInDb.Events,
+            filter = OperationField(Fields.Id, ObjectId(eventId)),
+            fieldName = Fields.Presences.title,
+            incrementValue = 1
+        )
+    }
+
+    override suspend fun decrementPresence(eventId: String) {
+        MongodbOperations().decrementField<Event>(
+            collectionName = CollectionsInDb.Events,
+            filter = OperationField(Fields.Id, ObjectId(eventId)),
+            fieldName = Fields.Presences.title,
+            decrementValue = 1
+        )
+    }
+
+    override suspend fun getPresenceByEventAndUser(eventId: String, userId: String): Presence? {
+        val query = Document(Fields.EventId.title, eventId).append(Fields.UserId.title, userId)
+        return MongodbOperationsWithQuery().findOneWithQuery<Presence>(CollectionsInDb.Presences, query)
+    }
+
+    // Falta realizar chamada
+    override suspend fun getPresenceByUser(userId: String, pageSize: Int, pageNumber: Int): List<Presence> {
+        val query = Document(Fields.UserId.title, userId)
+        val sort = Document(Fields.CreatedAt.title, -1)
+
+        return MongodbOperationsWithQuery().findAllWithPagingAndFilterWithQuery<Presence>(
+            collectionName = CollectionsInDb.Presences,
+            pageSize = pageSize,
+            pageNumber = pageNumber,
+            query = query,
+            sort = sort
+        )
+    }
+
+    override suspend fun markPresencePresence(presence: Presence): Presence {
+        incrementPresence(presence.eventId)
+        val id: String = MongodbOperations().register(CollectionsInDb.Presences, presence).toString()
+        return getPresenceById(id)
+    }
+
+    override suspend fun unmarkPresencePresence(userId: String, eventId: String) {
+        decrementPresence(eventId)
+
+        val query = Document().apply {
+            append(Fields.UserId.title, userId)
+            append(Fields.EventId.title, eventId)
+        }
+
+        MongodbOperationsWithQuery().deleteItemWithQuery<Presence>(CollectionsInDb.Presences, query)
+    }
+
+    override suspend fun getPresenceById(presenceId: String): Presence {
+        return MongodbOperations().findOne<Presence>(CollectionsInDb.Presences, OperationField(Fields.Id, ObjectId(presenceId)))
+            ?: throw CustomException(Errors.PresenceNotFound)
     }
 }

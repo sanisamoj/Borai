@@ -1,5 +1,6 @@
 package com.sanisamoj.database.mongodb
 
+import com.sanisamoj.data.models.enums.Errors
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
@@ -49,12 +50,13 @@ class MongodbOperationsWithQuery {
         collectionName: CollectionsInDb,
         pageSize: Int,
         pageNumber: Int,
-        query: Document
+        query: Document,
+        sort: Document = Document()
     ): List<T> {
         val database = MongoDatabase.getDatabase()
         val collection = database.getCollection<T>(collectionName.name)
         val skip = (pageNumber - 1) * pageSize
-        return collection.find(query).skip(skip).limit(pageSize).toList()
+        return collection.find(query).skip(skip).limit(pageSize).sort(sort).toList()
     }
 
     // Conta documentos com filtro Query
@@ -101,7 +103,7 @@ class MongodbOperationsWithQuery {
         val database = MongoDatabase.getDatabase()
         val collection = database.getCollection<T>(collectionName.name)
         val result = collection.deleteOne(query)
-        if (result.deletedCount.toInt() == 0) throw Exception("Nenhum item foi excluído")
+        if (result.deletedCount.toInt() == 0) throw Exception(Errors.NoItemsWereDeleted.description)
     }
 
     // Remove vários itens usando Query

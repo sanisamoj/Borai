@@ -1,3 +1,7 @@
+v0.1.4
+
+ - Implementação da funcionalidade para marcar e desmacar presença de um evento.
+
 v0.1.3
 
  - Implementação da parte do repositório responsável por gerenciar mídias.

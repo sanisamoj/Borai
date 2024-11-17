@@ -39,6 +39,10 @@ fun errorResponse(exception: CustomException): Pair<HttpStatusCode, ErrorRespons
             HttpStatusCode.Forbidden to ErrorResponse(Errors.InvalidValidationCode.description)
         }
 
+        Errors.PresenceAlreadyMarked -> {
+            HttpStatusCode.Conflict to ErrorResponse(Errors.PresenceAlreadyMarked.description)
+        }
+
         Errors.InactiveAccount -> {
             HttpStatusCode.Forbidden to ErrorResponse(
                 error = Errors.InactiveAccount.description,

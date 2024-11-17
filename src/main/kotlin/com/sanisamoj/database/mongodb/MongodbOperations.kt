@@ -1,6 +1,7 @@
 package com.sanisamoj.database.mongodb
 
 import com.mongodb.client.model.Filters
+import com.mongodb.client.model.Updates
 import com.sanisamoj.data.models.dataclass.Event
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.first
@@ -308,14 +309,54 @@ class MongodbOperations {
         return collection.find(combinedFilter).toList()
     }
 
-    suspend fun findEventsNearby(longitude: Double, latitude: Double, maxDistanceMeters: Int): Event? {
-        val query = Document("address.coordinates", Document("\$near", Document()
-            .append("\$geometry", Document()
-                .append("type", "Point")
-                .append("coordinates", listOf(longitude, latitude)))
-            .append("\$maxDistance", maxDistanceMeters)
-        ))
-        return MongodbOperationsWithQuery().findOneWithQuery<Event>(CollectionsInDb.Events, query)
+    // Increment a field value in the database
+    suspend inline fun <reified T : Any> incrementField(
+        collectionName: CollectionsInDb,
+        filter: OperationField,
+        fieldName: String,
+        incrementValue: Number
+    ): T? {
+        val database = MongoDatabase.getDatabase()
+        val collection = database.getCollection<T>(collectionName.name)
+
+        // Apply increment operation on the specified field
+        val update = Updates.inc(fieldName, incrementValue)
+
+        try {
+            // Update the document and return the updated item
+            collection.updateOne(
+                Document(filter.field.title, filter.value),
+                update
+            )
+            return collection.find<T>(Document(filter.field.title, filter.value)).first()
+        } catch (_: Exception) {
+            return null
+        }
+    }
+
+    // Decrement a field value in the database
+    suspend inline fun <reified T : Any> decrementField(
+        collectionName: CollectionsInDb,
+        filter: OperationField,
+        fieldName: String,
+        decrementValue: Number
+    ): T? {
+        val database = MongoDatabase.getDatabase()
+        val collection = database.getCollection<T>(collectionName.name)
+
+        // Apply decrement operation on the specified field
+        val update = Updates.inc(fieldName, -decrementValue.toDouble())
+
+        try {
+            // Update the document and return the updated item
+            collection.updateOne(
+                Document(filter.field.title, filter.value),
+                update
+            )
+            return collection.find<T>(Document(filter.field.title, filter.value)).first()
+        } catch (_: Exception) {
+            return null
+        }
     }
 
 
