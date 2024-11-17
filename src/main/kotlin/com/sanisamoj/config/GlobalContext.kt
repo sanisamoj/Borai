@@ -9,6 +9,7 @@ import com.sanisamoj.data.models.interfaces.ServerContainer
 import com.sanisamoj.data.models.interfaces.SessionRepository
 import com.sanisamoj.utils.analyzers.ResourceLoader
 import com.sanisamoj.utils.analyzers.dotEnv
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 object GlobalContext {
@@ -28,6 +29,9 @@ object GlobalContext {
     const val MAX_UPLOAD_PROFILE_IMAGE: Int = 1
     const val MAX_HEADERS_SIZE: Int = 5 * 1024 * 1024 // 5MB
     val MIME_TYPE_ALLOWED: List<String> = listOf("jpeg", "png", "jpg", "gif")
+
+    private val currentProjectDir = System.getProperty("user.dir")
+    val PUBLIC_IMAGES_DIR = File(currentProjectDir, "uploads")
 
     fun getDatabaseRepository(): DatabaseRepository = serverContainer.databaseRepository
     fun getSessionRepository(): SessionRepository = serverContainer.sessionRepository

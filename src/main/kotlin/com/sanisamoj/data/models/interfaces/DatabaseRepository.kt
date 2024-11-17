@@ -10,7 +10,6 @@ interface DatabaseRepository {
     suspend fun createUser(user: User): User
     suspend fun getUserByNick(nick: String): User?
     suspend fun getUserById(userId: String): User
-    suspend fun getUserByIdOrNull(userId: String): User?
     suspend fun getUserByEmail(email: String): User?
     suspend fun getUserByPhone(phone: String): User?
     suspend fun updateUser(userId: String, update: OperationField): User
@@ -19,5 +18,4 @@ interface DatabaseRepository {
     suspend fun saveMedia(multipartData: MultiPartData, maxImagesAllowed: Int): List<MediaStorage>
     fun getMedia(name: String): File
     fun deleteMedia(file: File)
-    suspend fun deleteMediaFromTheBot(botId: String, filename: String)
 }

@@ -12,6 +12,7 @@ enum class Fields(val title: String) {
     EventId(title = "eventId"),
     ParentId(title = "parentId"),
     Username(title = "username"),
+    AccountId(title = "accountId"),
     Presences(title = "presences"),
     PromoterId(title = "promoterId"),
     ImageProfile(title = "imageProfile"),

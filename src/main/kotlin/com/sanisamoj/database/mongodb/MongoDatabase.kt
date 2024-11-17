@@ -1,8 +1,10 @@
 package com.sanisamoj.database.mongodb
 
 import com.mongodb.MongoException
+import com.mongodb.client.model.Indexes
 import com.mongodb.kotlin.client.coroutine.MongoClient
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
+import com.sanisamoj.data.models.dataclass.Event
 import com.sanisamoj.utils.analyzers.dotEnv
 import kotlinx.coroutines.delay
 import org.bson.BsonInt64
@@ -24,6 +26,7 @@ object MongoDatabase {
             db.runCommand(command)
             println("You successfully connected to MongoDB!")
             database = db
+            createGeospatialIndex(db)
         } catch (me: MongoException) {
             System.err.println(me)
             println("A new attempt will be made to reconnect to mongodb in 30s.")
@@ -37,5 +40,13 @@ object MongoDatabase {
     suspend fun getDatabase(): MongoDatabase {
         if (database == null) init()
         return database!!
+    }
+
+    private suspend fun createGeospatialIndex(db: MongoDatabase) {
+        val collection = db.getCollection<Event>("Events")
+
+        try {
+            collection.createIndex(Indexes.geo2dsphere("address.geoCoordinates.coordinates"))
+        } catch (_: Exception) {}
     }
 }

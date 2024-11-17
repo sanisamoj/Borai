@@ -14,6 +14,29 @@ class MongodbOperationsWithQuery {
         return collection.find<T>(query).firstOrNull()
     }
 
+    // Função para buscar eventos por nome aproximado com paginação
+    suspend inline fun <reified T : Any> findItemsWithPaging(
+        collectionName: CollectionsInDb,
+        pageSize: Int,
+        pageNumber: Int,
+        query: Document
+    ): List<T> {
+        val database = MongoDatabase.getDatabase()
+        val collection = database.getCollection<T>(collectionName.name)
+
+        // Filtro de busca com nome aproximado (usando regex)
+        val regexQuery = query
+
+        // Cálculo de skip para paginação
+        val skip = (pageNumber - 1) * pageSize
+
+        // Busca com regex e paginação
+        return collection.find(regexQuery)
+            .skip(skip)
+            .limit(pageSize)
+            .toList()
+    }
+
     // Retorna todos os itens com filtro Query
     suspend inline fun <reified T : Any> findAllByFilterWithQuery(collectionName: CollectionsInDb, query: Document): List<T> {
         val database = MongoDatabase.getDatabase()
