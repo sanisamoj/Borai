@@ -1,3 +1,7 @@
+v0.1.2
+
+- Implementação da funcionalidade de criação de eventos.
+
 v0.1.1
 
  - Implementação da estrutura base dos dados dos Eventos.

@@ -10,6 +10,8 @@ object UserFactory {
     fun userResponse(user: User): UserResponse {
         return UserResponse(
             id = user.id.toString(),
+            nick = user.nick,
+            bio = user.bio,
             username = user.username,
             imageProfile = if(user.imageProfile == "") null else user.imageProfile,
             email = user.email,
@@ -22,6 +24,8 @@ object UserFactory {
     fun user(userCreateRequest: UserCreateRequest): User {
         val hashedPassword: String = BCrypt.hashpw(userCreateRequest.password, BCrypt.gensalt())
         return User(
+            nick = userCreateRequest.nick,
+            bio = userCreateRequest.bio,
             username = userCreateRequest.username,
             imageProfile = userCreateRequest.imageProfile ?: "",
             email = userCreateRequest.email,

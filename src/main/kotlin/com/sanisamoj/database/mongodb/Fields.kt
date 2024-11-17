@@ -2,6 +2,7 @@ package com.sanisamoj.database.mongodb
 
 enum class Fields(val title: String) {
     Id(title = "_id"),
+    Nick(title = "nick"),
     Name(title = "name"),
     Date(title = "date"),
     Type(title = "type"),

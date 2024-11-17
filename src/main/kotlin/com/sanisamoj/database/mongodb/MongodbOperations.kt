@@ -1,6 +1,7 @@
 package com.sanisamoj.database.mongodb
 
 import com.mongodb.client.model.Filters
+import com.sanisamoj.data.models.dataclass.Event
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -305,6 +306,16 @@ class MongodbOperations {
 
         // Find documents that match the filter
         return collection.find(combinedFilter).toList()
+    }
+
+    suspend fun findEventsNearby(longitude: Double, latitude: Double, maxDistanceMeters: Int): Event? {
+        val query = Document("address.coordinates", Document("\$near", Document()
+            .append("\$geometry", Document()
+                .append("type", "Point")
+                .append("coordinates", listOf(longitude, latitude)))
+            .append("\$maxDistance", maxDistanceMeters)
+        ))
+        return MongodbOperationsWithQuery().findOneWithQuery<Event>(CollectionsInDb.Events, query)
     }
 
 

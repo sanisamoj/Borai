@@ -3,6 +3,7 @@ package com.sanisamoj.config
 import com.sanisamoj.data.models.dataclass.GlobalWarnings
 import com.sanisamoj.data.models.interfaces.BotRepository
 import com.sanisamoj.data.models.interfaces.DatabaseRepository
+import com.sanisamoj.data.models.interfaces.EventRepository
 import com.sanisamoj.data.models.interfaces.MailRepository
 import com.sanisamoj.data.models.interfaces.ServerContainer
 import com.sanisamoj.data.models.interfaces.SessionRepository
@@ -11,7 +12,7 @@ import com.sanisamoj.utils.analyzers.dotEnv
 import java.util.concurrent.TimeUnit
 
 object GlobalContext {
-    const val VERSION: String = "0.1.0"
+    const val VERSION: String = "0.1.2"
     private val serverContainer: ServerContainer = DefaultServerContainer()
     val globalWarnings: GlobalWarnings = ResourceLoader.convertJsonInputStreamAsObject<GlobalWarnings>("/lang/pt.json")
 
@@ -30,6 +31,7 @@ object GlobalContext {
 
     fun getDatabaseRepository(): DatabaseRepository = serverContainer.databaseRepository
     fun getSessionRepository(): SessionRepository = serverContainer.sessionRepository
+    fun getEventRepository(): EventRepository = serverContainer.eventRepository
     fun getBotRepository(): BotRepository = serverContainer.botRepository
     fun getMailRepository(): MailRepository = serverContainer.mailRepository
 }

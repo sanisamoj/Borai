@@ -16,6 +16,7 @@ enum class Errors(val description: String) {
     InactiveAccount("Inactive Account!"),
     ExpiredSession("Expired session!"),
     BlockedAccount("Blocked Account!"),
+    EventNotFound("Event not found!"),
     DataIsMissing("Data is missing"),
     UserNotFound("User Not Found!")
 }

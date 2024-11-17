@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Address(
+    val geoCoordinates: GeoCoordinates? = null,
     val zipcode: String,
     val street: String,
     val houseNumber: String,

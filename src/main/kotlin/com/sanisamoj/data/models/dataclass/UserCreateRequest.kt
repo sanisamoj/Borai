@@ -5,6 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserCreateRequest(
+    val nick: String,
+    val bio: String? = null,
     val username: String,
     val imageProfile: String? = null,
     val email: String,

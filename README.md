@@ -9,15 +9,9 @@ o que limita o alcance de seus eventos dentro da plataforma.
 O sistema ainda utiliza microserviços para a melhor usabilidade, como o [NotifyBot](https://github.com/sanisamoj/NotifyBot) para envio de mensagens
 ou notificações para usuários, e o [EventLoggerServer](https://github.com/sanisamoj/EventLoggerServer) para centralização de logs, como erros e avisos.
 
-> Microserviços foram utilizados, pois os outros projetos do meu repositório utilizam esses serviços em comum.
+> *Microserviços foram utilizados, pois os outros projetos do meu repositório utilizam esses serviços em comum.*
 
 ## Funcionalidades
-Há a possibilidade de visualizar e encontrar eventos a partir de filtros pré-determinados, como local, horário, tipo de evento ou eventos
-no qual contas em específicas as criaram. Também há a possibilidade de marcar presença nos eventos disponíveis, e visualizar contas nas quais
-o usuário segue que marcaram presença também, os eventos podem ser comentados. Contas participantes e promotoras podem ter insignias a partir de 
-pontos adiquiridos dentro da plataforma, como frequência de participação, de comentários, ou para promotores como eventos bem sucedidos, e bem avaliados
-e quantidade de eventos feitos e etc.
-
 - **É possível encontrar e visualizar eventos utilizando filtros pré-determinados, como:**
 
     - Localização.
@@ -34,8 +28,15 @@ e quantidade de eventos feitos e etc.
 
 - **Insígnias para Participantes e Promotores**
 
+  - São obtidas através de avaliações ou condições atendidas.
+
 
 - Nos **eventos** é possível:
 
   - Ver as contas públicas que marcaram presença no evento.
   - Visualizar informações como, local, data, horário, descrição, fotos, informações do organizador e o tipo de evento.
+  
+
+## Endpoints disponíveis
+No momento apenas alguns endpoints estão disponíveis, e estão hospedados na página de endpoints do Postman.
+https://documenter.getpostman.com/view/29175154/2sAYBPnEij

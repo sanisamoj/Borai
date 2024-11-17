@@ -19,6 +19,10 @@ class DefaultRepository: DatabaseRepository {
         return getUserById(userId)
     }
 
+    override suspend fun getUserByNick(nick: String): User? {
+        return MongodbOperations().findOne<User>(CollectionsInDb.Users, OperationField(Fields.Nick, nick))
+    }
+
     override suspend fun getUserById(userId: String): User {
         return MongodbOperations().findOne<User>(CollectionsInDb.Users, OperationField(Fields.Id, ObjectId(userId)))
             ?: throw CustomException(Errors.UserNotFound)

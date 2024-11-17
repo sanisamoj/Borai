@@ -6,6 +6,8 @@ import java.time.LocalDateTime
 
 data class User(
     @BsonId val id: ObjectId = ObjectId(),
+    val nick: String,
+    val bio: String? = null,
     val username: String,
     val imageProfile: String,
     val email: String,

@@ -64,6 +64,6 @@ fun Application.configureSecurity(
 }
 
 private suspend fun verifySession(sessionRepository: SessionRepository, accountId: String, sessionId: String) {
-    val sessionRevoked = sessionRepository.sessionRevoked(accountId, sessionId)
+    val sessionRevoked: Boolean = sessionRepository.sessionRevoked(accountId, sessionId)
     if (sessionRevoked) throw CustomException(Errors.ExpiredSession)
 }
