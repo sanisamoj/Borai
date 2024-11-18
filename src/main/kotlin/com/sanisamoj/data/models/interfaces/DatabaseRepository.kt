@@ -18,4 +18,9 @@ interface DatabaseRepository {
     suspend fun saveMedia(multipartData: MultiPartData, maxImagesAllowed: Int): List<MediaStorage>
     fun getMedia(name: String): File
     fun deleteMedia(file: File)
+
+    suspend fun addFollower(followerId: String, followingId: String)
+    suspend fun removeFollower(followerId: String, followingId: String)
+    suspend fun getFollowers(userId: String): List<String>
+    suspend fun getFollowing(userId: String): List<String>
 }

@@ -35,6 +35,15 @@ ou notificações para usuários, e o [EventLoggerServer](https://github.com/san
 
   - Ver as contas públicas que marcaram presença no evento.
   - Visualizar informações como, local, data, horário, descrição, fotos, informações do organizador e o tipo de evento.
+
+
+#### Execute o comando a seguir para construir a imagem Docker.
+
+    docker build -t borai .
+
+#### Execute o comando a seguir para executar a imagem criada com o Docker.
+
+    docker run --name borai -p 7070:7070 borai:latest
   
 
 ## Endpoints disponíveis

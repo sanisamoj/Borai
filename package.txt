@@ -1,3 +1,8 @@
+v0.1.5
+
+ - Implementação da estrutura de seguidores.
+  * Uma coleção separada para seguidores de cada usuário com "followerIds" ( IDS de seguidores ) e "followingIds" ( IDS de contas que "eu" sigo ).
+
 v0.1.4
 
  - Implementação da funcionalidade para marcar e desmacar presença de um evento.

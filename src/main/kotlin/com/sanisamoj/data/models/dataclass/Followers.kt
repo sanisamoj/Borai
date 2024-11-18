@@ -1,6 +1,10 @@
 package com.sanisamoj.data.models.dataclass
 
+import org.bson.codecs.pojo.annotations.BsonId
+import org.bson.types.ObjectId
+
 data class Followers(
-    val accepted: List<String> = listOf(),
-    val pending: List<String> = listOf()
+    @BsonId val id: ObjectId = ObjectId(),
+    val followerIds: MutableSet<String> = mutableSetOf(),
+    val followingIds: MutableSet<String> = mutableSetOf()
 )

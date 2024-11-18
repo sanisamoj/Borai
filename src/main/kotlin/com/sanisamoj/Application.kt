@@ -1,12 +1,7 @@
 package com.sanisamoj
 
 import com.sanisamoj.config.Config
-import com.sanisamoj.pluguins.configureHTTP
-import com.sanisamoj.pluguins.configureRateLimit
-import com.sanisamoj.pluguins.configureRouting
-import com.sanisamoj.pluguins.configureSecurity
-import com.sanisamoj.pluguins.configureSerialization
-import com.sanisamoj.pluguins.configureStatusPage
+import com.sanisamoj.pluguins.*
 import io.ktor.server.application.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

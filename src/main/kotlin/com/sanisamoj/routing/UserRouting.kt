@@ -9,6 +9,7 @@ import com.sanisamoj.data.models.dataclass.UpdatePhoneWithValidationCode
 import com.sanisamoj.data.models.dataclass.UserCreateRequest
 import com.sanisamoj.data.models.dataclass.UserResponse
 import com.sanisamoj.data.models.enums.Errors
+import com.sanisamoj.services.followers.FollowerService
 import com.sanisamoj.services.user.UserAuthenticationService
 import com.sanisamoj.services.user.UserManagerService
 import com.sanisamoj.services.user.UserService
@@ -103,6 +104,34 @@ fun Route.userRouting() {
                 }
             }
         }
+
+        authenticate("user-jwt") {
+
+            post("/follow") {
+                val principal = call.principal<JWTPrincipal>()!!
+                val accountId = principal.payload.getClaim("id").asString()
+                val followingId = call.parameters["followingId"]
+
+                if(followingId == null) throw CustomException(Errors.InvalidParameters)
+
+                FollowerService().addFollower(accountId, followingId)
+                return@post call.respond(HttpStatusCode.OK)
+            }
+
+            delete("/follow") {
+                val principal = call.principal<JWTPrincipal>()!!
+                val accountId = principal.payload.getClaim("id").asString()
+                val followingId = call.parameters["followingId"]
+
+                if(followingId == null) throw CustomException(Errors.InvalidParameters)
+
+                FollowerService().removeFollower(accountId, followingId)
+                return@delete call.respond(HttpStatusCode.OK)
+            }
+
+        }
+
+
     }
 
 
