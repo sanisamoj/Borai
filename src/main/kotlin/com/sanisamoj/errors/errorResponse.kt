@@ -43,6 +43,14 @@ fun errorResponse(exception: CustomException): Pair<HttpStatusCode, ErrorRespons
             HttpStatusCode.Conflict to ErrorResponse(Errors.PresenceAlreadyMarked.description)
         }
 
+        Errors.UserIsNotPresentInTheListOfFollowers -> {
+            HttpStatusCode.UnprocessableEntity to ErrorResponse(Errors.UserIsNotPresentInTheListOfFollowers.description)
+        }
+
+        Errors.UserIsAlreadyOnTheFollowersList -> {
+            HttpStatusCode.UnprocessableEntity to ErrorResponse(Errors.UserIsAlreadyOnTheFollowersList.description)
+        }
+
         Errors.InactiveAccount -> {
             HttpStatusCode.Forbidden to ErrorResponse(
                 error = Errors.InactiveAccount.description,

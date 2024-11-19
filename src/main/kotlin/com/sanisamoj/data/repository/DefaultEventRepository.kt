@@ -63,19 +63,24 @@ class DefaultEventRepository: EventRepository {
             )
         }
 
-        filters.address?.let {
-            it.street?.let { street ->
-                Document("address.street", Document("\$regex", it).append("\$options", "i"))
+        val addressFilters = mutableListOf<Document>()
+        filters.address?.let { address ->
+            address.street?.let { street ->
+                addressFilters.add(Document("address.street", Document("\$regex", street).append("\$options", "i")))
             }
-            it.neighborhood?.let { neighborhood ->
-                Document("address.neighborhood", Document("\$regex", it).append("\$options", "i"))
+            address.neighborhood?.let { neighborhood ->
+                addressFilters.add(Document("address.neighborhood", Document("\$regex", neighborhood).append("\$options", "i")))
             }
-            it.city?.let { city ->
-                Document("address.city", Document("\$regex", it).append("\$options", "i"))
+            address.city?.let { city ->
+                addressFilters.add(Document("address.city", Document("\$regex", city).append("\$options", "i")))
             }
-            it.uf?.let { uf ->
-                Document("address.uf", Document("\$regex", it).append("\$options", "i"))
+            address.uf?.let { uf ->
+                addressFilters.add(Document("address.uf", Document("\$regex", uf).append("\$options", "i")))
             }
+        }
+
+        if (addressFilters.isNotEmpty()) {
+            query.append("\$and", addressFilters)
         }
 
         val eventList: List<Event> = MongodbOperationsWithQuery().findAllWithPagingAndFilterWithQuery<Event>(

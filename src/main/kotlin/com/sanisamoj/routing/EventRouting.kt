@@ -20,7 +20,7 @@ import java.time.LocalDateTime
 
 fun Route.eventRouting() {
 
-    route("event") {
+    route("/event") {
 
         authenticate("user-jwt") {
 

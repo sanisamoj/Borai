@@ -1,6 +1,9 @@
 package com.sanisamoj.data.models.enums
 
 enum class Errors(val description: String) {
+    UserIsNotPresentInTheListOfFollowers("User is not present in the list of followers!"),
+    UserIsNotPresentInTheListOfFollowing("User is not present in the list of following!"),
+    UserIsAlreadyOnTheFollowersList("User is already on the followers list."),
     LimitOnTheNumberOfImageReached("Limit on the number of images reached."),
     TheLimitMaxImageAllowed("The limit of images has been exceeded!"),
     MaxRetriesReached("Max retries reached, token update failed."),

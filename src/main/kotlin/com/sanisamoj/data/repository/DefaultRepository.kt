@@ -158,21 +158,21 @@ class DefaultRepository: DatabaseRepository {
         )
     }
 
-    override suspend fun removeFollower(followerId: String, followingId: String) {
+    override suspend fun removeFollowing(followerId: String, followingId: String) {
         val collection = CollectionsInDb.Followers
         val followerQuery = Document(Fields.Id.title, ObjectId(followerId))
         val followingQuery = Document(Fields.Id.title, ObjectId(followingId))
 
         val mongodbOperationsWithQuery = MongodbOperationsWithQuery()
 
-        // Remove who is being followed from the follower list
+        // Remove who is being followed from the follower's "followingIds" list
         mongodbOperationsWithQuery.pullItemWithQuery<Followers>(
             collectionName = collection,
             query = followerQuery,
             update = Document("followingIds", followingId)
         )
 
-        // Remove the follower from the list of those being followed
+        // Remove the follower from the followed user's "followerIds" list
         mongodbOperationsWithQuery.pullItemWithQuery<Followers>(
             collectionName = collection,
             query = followingQuery,
