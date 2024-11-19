@@ -125,7 +125,7 @@ fun Route.userRouting() {
 
                 if(followingId == null) throw CustomException(Errors.InvalidParameters)
 
-                FollowerService().removeFollower(accountId, followingId)
+                FollowerService().removeFollowing(accountId, followingId)
                 return@delete call.respond(HttpStatusCode.OK)
             }
 
