@@ -19,8 +19,14 @@ interface DatabaseRepository {
     fun getMedia(name: String): File
     fun deleteMedia(file: File)
 
-    suspend fun addFollower(followerId: String, followingId: String)
+    suspend fun sendFollowRequest(followerId: String, followingId: String)
+    suspend fun acceptFollowRequest(followerId: String, followingId: String)
+    suspend fun rejectFollowRequest(followerId: String, followingId: String)
+    suspend fun cancelFollowRequest(followerId: String, followingId: String)
+    suspend fun getPendingFollowRequests(userId: String): List<String>
+    suspend fun getPendingSentRequests(userId: String): List<String>
     suspend fun removeFollowing(followerId: String, followingId: String)
     suspend fun getFollowers(userId: String): List<String>
     suspend fun getFollowing(userId: String): List<String>
+    suspend fun getMutualFollowers(userId: String): List<String>
 }

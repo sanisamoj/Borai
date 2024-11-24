@@ -35,4 +35,13 @@ object UserFactory {
             accountStatus = AccountStatus.Inactive.name
         )
     }
+
+    fun minimalUserResponseWithUser(user: User): MinimalUserResponse {
+        return MinimalUserResponse(
+            id = user.id.toString(),
+            nick = user.nick,
+            imageProfile = user.imageProfile,
+            accountType = user.type
+        )
+    }
 }

@@ -4,6 +4,13 @@ v0.1.5
   * Uma coleção separada para seguidores de cada usuário com "followerIds" ( IDS de seguidores ) e "followingIds" ( IDS de contas que "eu" sigo ).
 
  - Correção da busca de eventos a partir do endereço.
+  * Adição de respostas com paginação.
+
+ - Alteração do sistema de seguidores.
+  * Agora é enviado uma solicitação para seguir, e o usuário pode aceitar ou rejeitar.
+  * Há uma lista de solicitações enviadas que estão pendentes, e solicitações que foram recebidas e estão pendentes de resposta.
+
+ - Adição de paginação (dataclass PaginationResponse) nas pesquisas de eventos.
 
 v0.1.4
 

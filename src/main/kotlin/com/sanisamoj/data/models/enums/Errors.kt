@@ -7,6 +7,7 @@ enum class Errors(val description: String) {
     LimitOnTheNumberOfImageReached("Limit on the number of images reached."),
     TheLimitMaxImageAllowed("The limit of images has been exceeded!"),
     MaxRetriesReached("Max retries reached, token update failed."),
+    FollowRequestAlreadyExists("Follow request already exists!"),
     InvalidValidationCode("Invalid Validation Code!"),
     PresenceAlreadyMarked("Presence already marked!"),
     ExpiredValidationCode("Expired Validation Code!"),

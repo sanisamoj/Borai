@@ -5,6 +5,8 @@ import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.interfaces.DatabaseRepository
 import com.sanisamoj.data.models.interfaces.EventRepository
 import com.sanisamoj.utils.converters.converterStringToLocalDateTime
+import com.sanisamoj.utils.pagination.PaginationResponse
+import com.sanisamoj.utils.pagination.paginationMethod
 
 class EventService(
     private val eventRepository: EventRepository = GlobalContext.getEventRepository(),
@@ -32,20 +34,32 @@ class EventService(
         return eventResponseFactory(event)
     }
 
-    suspend fun searchEvents(filters: SearchEventFilters): List<EventResponse> {
+    suspend fun searchEvents(filters: SearchEventFilters): GenericResponseWithPagination<EventResponse> {
         val eventList: List<Event> = eventRepository.searchEvents(filters)
-        return eventList.map { eventResponseFactory(it) }
+        val eventsCount: Int = eventRepository.getEventsWithFilterCount(filters)
+        val paginationResponse: PaginationResponse = paginationMethod(eventsCount.toDouble(), filters.size, filters.page)
+
+        return GenericResponseWithPagination(
+            content = eventList.map { eventResponseFactory(it) },
+            paginationResponse = paginationResponse
+        )
     }
 
-    suspend fun findEventsNearby(filters: SearchEventNearby): List<EventResponse> {
+    suspend fun findEventsNearby(filters: SearchEventNearby): GenericResponseWithPagination<EventResponse> {
         val eventList: List<Event> = eventRepository.findEventsNearby(filters)
-        return eventList.map { eventResponseFactory(it) }
+        val eventsCount: Int = eventRepository.getEventsWithFilterCount(filters)
+        val paginationResponse: PaginationResponse = paginationMethod(eventsCount.toDouble(), filters.size, filters.page)
+
+        return GenericResponseWithPagination(
+            content = eventList.map { eventResponseFactory(it) },
+            paginationResponse = paginationResponse
+        )
     }
 
     private suspend fun eventResponseFactory(event: Event): EventResponse {
         val user: User = repository.getUserById(event.accountId)
 
-        val eventCreatorResponse = EventCreatorResponse(
+        val minimalUserResponse = MinimalUserResponse(
             id = user.id.toString(),
             nick = user.nick,
             imageProfile = user.imageProfile,
@@ -54,7 +68,7 @@ class EventService(
 
         val eventResponse = EventResponse(
             id = event.id.toString(),
-            eventCreator = eventCreatorResponse,
+            eventCreator = minimalUserResponse,
             name = event.name,
             description = event.description,
             image = event.image,

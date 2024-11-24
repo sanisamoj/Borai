@@ -136,26 +136,142 @@ class DefaultRepository: DatabaseRepository {
         if(file.exists()) file.delete()
     }
 
-    override suspend fun addFollower(followerId: String, followingId: String) {
+    override suspend fun sendFollowRequest(followerId: String, followingId: String) {
         val collection = CollectionsInDb.Followers
         val followerQuery = Document(Fields.Id.title, ObjectId(followerId))
         val followingQuery = Document(Fields.Id.title, ObjectId(followingId))
 
         val mongodbOperationsWithQuery = MongodbOperationsWithQuery()
 
-        // Update the follower (adds who he is following)
+        val userFollowers: Followers? = mongodbOperationsWithQuery.findOneWithQuery<Followers>(
+            collectionName = collection,
+            query = followerQuery
+        )
+
+        if (userFollowers?.pendingSentRequests?.contains(followingId) == true) {
+            throw CustomException(Errors.FollowRequestAlreadyExists)
+        }
+
+        mongodbOperationsWithQuery.addToSetWithQuery<Followers>(
+            collectionName = collection,
+            query = followingQuery,
+            update = Document(Fields.PendingFollowRequests.title, followerId)
+        )
+
         mongodbOperationsWithQuery.addToSetWithQuery<Followers>(
             collectionName = collection,
             query = followerQuery,
-            update = Document("followingIds", followingId)
+            update = Document(Fields.PendingSentRequests.title, followingId)
+        )
+    }
+
+    override suspend fun acceptFollowRequest(followerId: String, followingId: String) {
+        val collection = CollectionsInDb.Followers
+        val followerQuery = Document(Fields.Id.title, ObjectId(followerId))
+        val followingQuery = Document(Fields.Id.title, ObjectId(followingId))
+
+        val mongodbOperationsWithQuery = MongodbOperationsWithQuery()
+
+        // Remove a pending request from the recipient
+        mongodbOperationsWithQuery.pullItemWithQuery<Followers>(
+            collectionName = collection,
+            query = followingQuery,
+            update = Document(Fields.PendingFollowRequests.title, followerId)
         )
 
-        // Updates followed (adds who is following him)
-        mongodbOperationsWithQuery.addToSetWithQuery<Followers>(
-            collection,
-            followingQuery,
-            Document("followerIds", followerId)
+        // Removes the sent request from the sender
+        mongodbOperationsWithQuery.pullItemWithQuery<Followers>(
+            collectionName = collection,
+            query = followerQuery,
+            update = Document(Fields.PendingSentRequests.title, followingId)
         )
+
+        // Adds the follower to the recipient's follower list
+        mongodbOperationsWithQuery.addToSetWithQuery<Followers>(
+            collectionName = collection,
+            query = followingQuery,
+            update = Document(Fields.FollowerIds.title, followerId)
+        )
+
+        // Adds the recipient to the sender's "following" list
+        mongodbOperationsWithQuery.addToSetWithQuery<Followers>(
+            collectionName = collection,
+            query = followerQuery,
+            update = Document(Fields.FollowingIds.title, followingId)
+        )
+    }
+
+    override suspend fun rejectFollowRequest(followerId: String, followingId: String) {
+        val collection = CollectionsInDb.Followers
+        val followerQuery = Document(Fields.Id.title, ObjectId(followerId))
+        val followingQuery = Document(Fields.Id.title, ObjectId(followingId))
+
+        val mongodbOperationsWithQuery = MongodbOperationsWithQuery()
+
+        // Removes pending request from recipient
+        mongodbOperationsWithQuery.pullItemWithQuery<Followers>(
+            collectionName = collection,
+            query = followingQuery,
+            update = Document(Fields.PendingFollowRequests.title, followerId)
+        )
+
+        // Removes the sent request from the sender
+        mongodbOperationsWithQuery.pullItemWithQuery<Followers>(
+            collectionName = collection,
+            query = followerQuery,
+            update = Document(Fields.PendingSentRequests.title, followingId)
+        )
+    }
+
+    override suspend fun cancelFollowRequest(followerId: String, followingId: String) {
+        val collection = CollectionsInDb.Followers
+        val followerQuery = Document(Fields.Id.title, ObjectId(followerId))
+        val followingQuery = Document(Fields.Id.title, ObjectId(followingId))
+
+        val mongodbOperationsWithQuery = MongodbOperationsWithQuery()
+
+        // Removes pending request from recipient
+        mongodbOperationsWithQuery.pullItemWithQuery<Followers>(
+            collectionName = collection,
+            query = followingQuery,
+            update = Document(Fields.PendingFollowRequests.title, followerId)
+        )
+
+        // Removes the sent request from the sender
+        mongodbOperationsWithQuery.pullItemWithQuery<Followers>(
+            collectionName = collection,
+            query = followerQuery,
+            update = Document(Fields.PendingSentRequests.title, followingId)
+        )
+    }
+
+    override suspend fun getPendingFollowRequests(userId: String): List<String> {
+        val collection = CollectionsInDb.Followers
+        val userQuery = Document(Fields.Id.title, ObjectId(userId))
+
+        val mongodbOperationsWithQuery = MongodbOperationsWithQuery()
+
+        val userFollowers: Followers? = mongodbOperationsWithQuery.findOneWithQuery<Followers>(
+            collectionName = collection,
+            query = userQuery
+        )
+
+        return userFollowers?.pendingFollowRequests?.map { it.toString() } ?: emptyList()
+    }
+
+    override suspend fun getPendingSentRequests(userId: String): List<String> {
+        val collection = CollectionsInDb.Followers
+        val userQuery = Document(Fields.Id.title, ObjectId(userId))
+
+        val mongodbOperationsWithQuery = MongodbOperationsWithQuery()
+
+        // Fetches the user and returns sent requests
+        val userFollowers: Followers? = mongodbOperationsWithQuery.findOneWithQuery<Followers>(
+            collectionName = collection,
+            query = userQuery
+        )
+
+        return userFollowers?.pendingSentRequests?.map { it.toString() } ?: emptyList()
     }
 
     override suspend fun removeFollowing(followerId: String, followingId: String) {
@@ -206,5 +322,25 @@ class DefaultRepository: DatabaseRepository {
         )
 
         return userFollowing?.followingIds?.map { it.toString() } ?: emptyList()
+    }
+
+    override suspend fun getMutualFollowers(userId: String): List<String> {
+        val collection = CollectionsInDb.Followers
+        val userQuery = Document(Fields.Id.title, ObjectId(userId))
+
+        val mongodbOperationsWithQuery = MongodbOperationsWithQuery()
+
+        val userFollowers: Followers? = mongodbOperationsWithQuery.findOneWithQuery<Followers>(
+            collectionName = collection,
+            query = userQuery
+        )
+
+        if (userFollowers == null) return emptyList()
+
+        val followerIds: MutableSet<String> = userFollowers.followerIds
+        val followingIds: MutableSet<String> = userFollowers.followingIds
+
+        // Finds intersection between followers and following
+        return followerIds.intersect(followingIds).toList()
     }
 }

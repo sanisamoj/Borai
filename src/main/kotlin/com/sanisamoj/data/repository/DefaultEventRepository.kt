@@ -27,11 +27,7 @@ class DefaultEventRepository: EventRepository {
         return MongodbOperations().findAllByFilter(CollectionsInDb.Events, OperationField(Fields.AccountId, accountId))
     }
 
-    override suspend fun getAllEventFromAccountWithPagination(
-        accountId: String,
-        page: Int,
-        size: Int
-    ): List<Event> {
+    override suspend fun getAllEventFromAccountWithPagination(accountId: String, page: Int, size: Int): List<Event> {
         return MongodbOperations().findAllWithPagingAndFilter(
             collectionName = CollectionsInDb.Events,
             pageSize = size,
@@ -41,6 +37,73 @@ class DefaultEventRepository: EventRepository {
     }
 
     override suspend fun searchEvents(filters: SearchEventFilters): List<Event> {
+        val query: Document = searchEventFiltersDocumentBuilder(filters)
+        val eventList: List<Event> = MongodbOperationsWithQuery().findAllWithPagingAndFilterWithQuery<Event>(
+            collectionName = CollectionsInDb.Events,
+            pageNumber = filters.page,
+            pageSize = filters.size,
+            query = query
+        )
+        return eventList
+    }
+
+    override suspend fun findEventsNearby(filters: SearchEventNearby): List<Event> {
+        val query = Document("address.geoCoordinates.coordinates", Document("\$near", Document()
+            .append("\$geometry", Document()
+                .append("type", "Point")
+                .append("coordinates", listOf(filters.longitude, filters.latitude)))
+            .append("\$maxDistance", filters.maxDistanceMeters)
+        ))
+
+        return MongodbOperationsWithQuery().findAllWithPagingAndFilterWithQuery(
+            collectionName = CollectionsInDb.Events,
+            pageSize = filters.size,
+            pageNumber = filters.page,
+            query = query
+        )
+    }
+
+    override suspend fun incrementPresence(eventId: String) {
+        MongodbOperations().incrementField<Event>(
+            collectionName = CollectionsInDb.Events,
+            filter = OperationField(Fields.Id, ObjectId(eventId)),
+            fieldName = Fields.Presences.title,
+            incrementValue = 1
+        )
+    }
+
+    override suspend fun decrementPresence(eventId: String) {
+        MongodbOperations().decrementField<Event>(
+            collectionName = CollectionsInDb.Events,
+            filter = OperationField(Fields.Id, ObjectId(eventId)),
+            fieldName = Fields.Presences.title,
+            decrementValue = 1
+        )
+    }
+
+    override suspend fun getEventsWithFilterCount(filters: SearchEventFilters): Int {
+        val query: Document = searchEventFiltersDocumentBuilder(filters)
+        return MongodbOperationsWithQuery().countDocumentsWithFilterWithQuery<Event>(
+            collectionName = CollectionsInDb.Events,
+            query = query
+        )
+    }
+
+    override suspend fun getEventsWithFilterCount(searchEventFilters: SearchEventNearby): Int {
+        val query = Document("address.geoCoordinates.coordinates", Document("\$near", Document()
+            .append("\$geometry", Document()
+                .append("type", "Point")
+                .append("coordinates", listOf(searchEventFilters.longitude, searchEventFilters.latitude)))
+            .append("\$maxDistance", searchEventFilters.maxDistanceMeters)
+        ))
+
+        return MongodbOperationsWithQuery().countDocumentsWithFilterWithQuery<Event>(
+            collectionName = CollectionsInDb.Events,
+            query = query
+        )
+    }
+
+    private fun searchEventFiltersDocumentBuilder(filters: SearchEventFilters): Document {
         val query = Document()
 
         filters.name?.let {
@@ -83,53 +146,43 @@ class DefaultEventRepository: EventRepository {
             query.append("\$and", addressFilters)
         }
 
-        val eventList: List<Event> = MongodbOperationsWithQuery().findAllWithPagingAndFilterWithQuery<Event>(
-            collectionName = CollectionsInDb.Events,
-            pageNumber = filters.page,
-            pageSize = filters.size,
-            query = query
-        )
-
-        return eventList
-    }
-
-    override suspend fun findEventsNearby(filters: SearchEventNearby): List<Event> {
-        val query = Document("address.geoCoordinates.coordinates", Document("\$near", Document()
-            .append("\$geometry", Document()
-                .append("type", "Point")
-                .append("coordinates", listOf(filters.longitude, filters.latitude)))
-            .append("\$maxDistance", filters.maxDistanceMeters)
-        ))
-
-        return MongodbOperationsWithQuery().findAllWithPagingAndFilterWithQuery(
-            collectionName = CollectionsInDb.Events,
-            pageSize = filters.size,
-            pageNumber = filters.page,
-            query = query
-        )
-    }
-
-    override suspend fun incrementPresence(eventId: String) {
-        MongodbOperations().incrementField<Event>(
-            collectionName = CollectionsInDb.Events,
-            filter = OperationField(Fields.Id, ObjectId(eventId)),
-            fieldName = Fields.Presences.title,
-            incrementValue = 1
-        )
-    }
-
-    override suspend fun decrementPresence(eventId: String) {
-        MongodbOperations().decrementField<Event>(
-            collectionName = CollectionsInDb.Events,
-            filter = OperationField(Fields.Id, ObjectId(eventId)),
-            fieldName = Fields.Presences.title,
-            decrementValue = 1
-        )
+        return query
     }
 
     override suspend fun getPresenceByEventAndUser(eventId: String, userId: String): Presence? {
         val query = Document(Fields.EventId.title, eventId).append(Fields.UserId.title, userId)
         return MongodbOperationsWithQuery().findOneWithQuery<Presence>(CollectionsInDb.Presences, query)
+    }
+
+    override suspend fun getPublicPresencesFromTheEvent(eventId: String, pageSize: Int,  pageNumber: Int): List<Presence> {
+        val query = Document(Fields.EventId.title, eventId).append(Fields.AccountIsPublic.title, true)
+        val sort = Document(Fields.CreatedAt.title, -1)
+
+        return MongodbOperationsWithQuery().findAllWithPagingAndFilterWithQuery<Presence>(
+            collectionName = CollectionsInDb.Presences,
+            pageSize = pageSize,
+            pageNumber = pageNumber,
+            query = query,
+            sort = sort
+        )
+    }
+
+    override suspend fun getPublicPresencesFromTheEventCount(eventId: String): Int {
+        return MongodbOperationsWithQuery().countDocumentsWithFilterWithQuery<Presence>(
+            collectionName = CollectionsInDb.Presences,
+            query = Document(Fields.EventId.title, eventId).append(Fields.AccountIsPublic.title, true)
+        )
+    }
+
+    override suspend fun getAllPublicPresencesFromTheEvent(eventId: String): List<Presence> {
+        val query = Document(Fields.EventId.title, eventId)
+        val sort = Document(Fields.CreatedAt.title, -1)
+
+        return MongodbOperationsWithQuery().findAllByFilterWithQuery(
+            collectionName = CollectionsInDb.Presences,
+            query = query,
+            sort = sort
+        )
     }
 
     // Falta realizar chamada
@@ -146,13 +199,13 @@ class DefaultEventRepository: EventRepository {
         )
     }
 
-    override suspend fun markPresencePresence(presence: Presence): Presence {
+    override suspend fun markPresence(presence: Presence): Presence {
         incrementPresence(presence.eventId)
         val id: String = MongodbOperations().register(CollectionsInDb.Presences, presence).toString()
         return getPresenceById(id)
     }
 
-    override suspend fun unmarkPresencePresence(userId: String, eventId: String) {
+    override suspend fun unmarkPresence(userId: String, eventId: String) {
         decrementPresence(eventId)
 
         val query = Document().apply {

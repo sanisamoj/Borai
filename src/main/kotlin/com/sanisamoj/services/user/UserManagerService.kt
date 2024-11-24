@@ -45,6 +45,10 @@ class UserManagerService(
         return UserFactory.userResponse(updatedUser)
     }
 
+    suspend fun updateBio(userId: String, newBio: String) {
+        databaseRepository.updateUser(userId, OperationField(Fields.Bio, newBio))
+    }
+
     suspend fun updatePhoneProcess(userId: String, newPhone: String) {
         val validationCode: Int = CharactersGenerator.codeValidationGenerate()
         generateValidationCodeWithCustomCode(userId, validationCode)

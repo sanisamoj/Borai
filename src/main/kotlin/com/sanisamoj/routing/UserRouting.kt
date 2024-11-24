@@ -4,6 +4,7 @@ import com.sanisamoj.config.GlobalContext
 import com.sanisamoj.data.models.dataclass.CustomException
 import com.sanisamoj.data.models.dataclass.LoginRequest
 import com.sanisamoj.data.models.dataclass.LoginResponse
+import com.sanisamoj.data.models.dataclass.MinimalUserResponse
 import com.sanisamoj.data.models.dataclass.PutUserProfile
 import com.sanisamoj.data.models.dataclass.UpdatePhoneWithValidationCode
 import com.sanisamoj.data.models.dataclass.UserCreateRequest
@@ -68,6 +69,10 @@ fun Route.userRouting() {
                             userManagerService.updatePhoneProcess(userId, putUserProfile.phone)
                             return@put call.respond(HttpStatusCode.OK)
                         }
+                        putUserProfile.bio != null -> {
+                            userManagerService.updateBio(userId, putUserProfile.bio)
+                            return@put call.respond(HttpStatusCode.OK)
+                        }
                         else -> {
                             return@put call.respond(HttpStatusCode.BadRequest, "No valid data to update")
                         }
@@ -107,6 +112,7 @@ fun Route.userRouting() {
 
         authenticate("user-jwt") {
 
+            // Responsible for sending a request to follow
             post("/follow") {
                 val principal = call.principal<JWTPrincipal>()!!
                 val accountId = principal.payload.getClaim("id").asString()
@@ -114,10 +120,11 @@ fun Route.userRouting() {
 
                 if(followingId == null) throw CustomException(Errors.InvalidParameters)
 
-                FollowerService().addFollower(accountId, followingId)
+                FollowerService().sendFollowRequest(accountId, followingId)
                 return@post call.respond(HttpStatusCode.OK)
             }
 
+            // Responsible for removing a follow
             delete("/follow") {
                 val principal = call.principal<JWTPrincipal>()!!
                 val accountId = principal.payload.getClaim("id").asString()
@@ -129,8 +136,53 @@ fun Route.userRouting() {
                 return@delete call.respond(HttpStatusCode.OK)
             }
 
-        }
+            // Responsible for accepting a request
+            post("/follow/accept") {
+                val principal = call.principal<JWTPrincipal>()!!
+                val accountId = principal.payload.getClaim("id").asString()
+                val followerId = call.parameters["followerId"].toString()
 
+                FollowerService().acceptFollowRequest(followerId, accountId)
+                return@post call.respond(HttpStatusCode.OK)
+            }
+
+            // Responsible for rejecting a request
+            post("/follow/reject") {
+                val principal = call.principal<JWTPrincipal>()!!
+                val accountId = principal.payload.getClaim("id").asString()
+                val followerId = call.parameters["followerId"].toString()
+
+                FollowerService().rejectFollowRequest(accountId, followerId)
+                return@post call.respond(HttpStatusCode.OK)
+            }
+
+            // Responsible for canceling a request
+            post("/follow/cancel") {
+                val principal = call.principal<JWTPrincipal>()!!
+                val accountId = principal.payload.getClaim("id").asString()
+                val followerId = call.parameters["followerId"].toString()
+
+                FollowerService().cancelFollowRequest(accountId, followerId)
+                return@post call.respond(HttpStatusCode.OK)
+            }
+
+            // Responsible for returning pending follow requests
+            get("/follow/pending") {
+                val principal = call.principal<JWTPrincipal>()!!
+                val accountId = principal.payload.getClaim("id").asString()
+                val minimalUserResponseList: List<MinimalUserResponse> = FollowerService().getPendingFollowRequests(accountId)
+                return@get call.respond(minimalUserResponseList)
+            }
+
+            // Responsible for returning pending sent follow requests
+            get("/follow/pending/sent") {
+                val principal = call.principal<JWTPrincipal>()!!
+                val accountId = principal.payload.getClaim("id").asString()
+                val minimalUserResponseList: List<MinimalUserResponse> = FollowerService().getPendingSentRequests(accountId)
+                return@get call.respond(minimalUserResponseList)
+            }
+
+        }
 
     }
 

@@ -1,11 +1,6 @@
 package com.sanisamoj.routing
 
-import com.sanisamoj.data.models.dataclass.AddressToSearch
-import com.sanisamoj.data.models.dataclass.CreateEventRequest
-import com.sanisamoj.data.models.dataclass.CustomException
-import com.sanisamoj.data.models.dataclass.EventResponse
-import com.sanisamoj.data.models.dataclass.SearchEventFilters
-import com.sanisamoj.data.models.dataclass.SearchEventNearby
+import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.enums.Errors
 import com.sanisamoj.services.event.EventHandlerService
 import com.sanisamoj.services.event.EventService
@@ -53,7 +48,7 @@ fun Route.eventRouting() {
                     size = size
                 )
 
-                val eventList: List<EventResponse> = EventService().findEventsNearby(filters)
+                val eventList: GenericResponseWithPagination<EventResponse> = EventService().findEventsNearby(filters)
 
                 return@get call.respond(HttpStatusCode.OK, eventList)
             }
@@ -131,6 +126,40 @@ fun Route.eventRouting() {
             val eventResponseList = EventService().searchEvents(filters)
 
             return@get call.respond(HttpStatusCode.OK, eventResponseList)
+        }
+
+    }
+
+    route("/presence") {
+
+        // Responsible for returning all public presences from the event
+        get {
+            val id = call.request.queryParameters["eventId"].toString()
+            val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+            val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
+
+            val allPublicPresenceFromTheEvent: GenericResponseWithPagination<MinimalUserResponse> = EventHandlerService().getPublicPresencesFromTheEvent(
+                eventId = id,
+                pageNumber = page,
+                pageSize = size
+            )
+
+            return@get call.respond(allPublicPresenceFromTheEvent)
+
+        }
+
+        authenticate("user-jwt") {
+
+            // Responsible for returning mutual followers presence
+            get("/mutual") {
+                val principal: JWTPrincipal = call.principal()!!
+                val accountId: String = principal.payload.getClaim("id").asString()
+                val id = call.request.queryParameters["eventId"].toString()
+
+                val minimalUserResponseList: List<MinimalUserResponse> = EventHandlerService().getMutualFollowersPresences(id, accountId)
+                return@get call.respond(minimalUserResponseList)
+            }
+
         }
 
     }

@@ -14,10 +14,16 @@ interface EventRepository {
     suspend fun findEventsNearby(filters: SearchEventNearby): List<Event>
     suspend fun incrementPresence(eventId: String)
     suspend fun decrementPresence(eventId: String)
+    suspend fun getEventsWithFilterCount(searchEventFilters: SearchEventFilters): Int
+    suspend fun getEventsWithFilterCount(searchEventFilters: SearchEventNearby): Int
 
     suspend fun getPresenceByEventAndUser(eventId: String, userId: String): Presence?
+    suspend fun getPublicPresencesFromTheEvent(eventId: String, pageSize: Int = 10, pageNumber: Int = 1): List<Presence>
+    suspend fun getPublicPresencesFromTheEventCount(eventId: String): Int
+    suspend fun getAllPublicPresencesFromTheEvent(eventId: String): List<Presence>
     suspend fun getPresenceByUser(userId: String, pageSize: Int = 10, pageNumber: Int = 1): List<Presence>
-    suspend fun markPresencePresence(presence: Presence): Presence
-    suspend fun unmarkPresencePresence(userId: String, eventId: String)
     suspend fun getPresenceById(presenceId: String): Presence
+
+    suspend fun markPresence(presence: Presence): Presence
+    suspend fun unmarkPresence(userId: String, eventId: String)
 }

@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class EventResponse(
     val id: String,
-    val eventCreator: EventCreatorResponse,
+    val eventCreator: MinimalUserResponse,
     val name: String,
     val description: String,
     val image: String,

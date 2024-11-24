@@ -40,10 +40,10 @@ class MongodbOperationsWithQuery {
     }
 
     // Returns all items with a query filter
-    suspend inline fun <reified T : Any> findAllByFilterWithQuery(collectionName: CollectionsInDb, query: Document): List<T> {
+    suspend inline fun <reified T : Any> findAllByFilterWithQuery(collectionName: CollectionsInDb, query: Document, sort: Document = Document()): List<T> {
         val database = MongoDatabase.getDatabase()
         val collection = database.getCollection<T>(collectionName.name)
-        return collection.find<T>(query).toList()
+        return collection.find<T>(query).sort(sort).toList()
     }
 
     // Returns items with pagination and query filter
