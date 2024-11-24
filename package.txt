@@ -1,3 +1,12 @@
+v0.1.6
+
+ - Implementação do sistema de comentários.
+  * Todos os eventos podem ser comentados, e esses comentários tem o limite de apenas um nível de resposta.
+  * Retorno de comentários apenas com paginação.
+
+ - Retorno com paginação de todos os eventos nos quais o usuário marcou presença.
+  * Foi adicionado "MinimalEventResponse", para uma possível miniatura das presenças.
+
 v0.1.5
 
  - Implementação da estrutura de seguidores.

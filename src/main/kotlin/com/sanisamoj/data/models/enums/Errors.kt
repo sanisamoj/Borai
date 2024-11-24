@@ -3,6 +3,7 @@ package com.sanisamoj.data.models.enums
 enum class Errors(val description: String) {
     UserIsNotPresentInTheListOfFollowers("User is not present in the list of followers!"),
     UserIsNotPresentInTheListOfFollowing("User is not present in the list of following!"),
+    CommentsCannotExceedLevelOneResponses("Comments cannot exceed level one responses!"),
     UserIsAlreadyOnTheFollowersList("User is already on the followers list."),
     LimitOnTheNumberOfImageReached("Limit on the number of images reached."),
     TheLimitMaxImageAllowed("The limit of images has been exceeded!"),
@@ -22,6 +23,7 @@ enum class Errors(val description: String) {
     UnableToComplete("Unable to complete!"),
     InvalidLogin("Invalid email/password!"),
     PresenceNotFound("Presence not found!"),
+    CommentNotFound("Comment not found!"),
     TooManyRequests("Too many requests!"),
     InactiveAccount("Inactive Account!"),
     ExpiredSession("Expired session!"),

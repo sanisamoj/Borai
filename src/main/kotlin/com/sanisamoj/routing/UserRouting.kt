@@ -2,8 +2,10 @@ package com.sanisamoj.routing
 
 import com.sanisamoj.config.GlobalContext
 import com.sanisamoj.data.models.dataclass.CustomException
+import com.sanisamoj.data.models.dataclass.GenericResponseWithPagination
 import com.sanisamoj.data.models.dataclass.LoginRequest
 import com.sanisamoj.data.models.dataclass.LoginResponse
+import com.sanisamoj.data.models.dataclass.MinimalEventResponse
 import com.sanisamoj.data.models.dataclass.MinimalUserResponse
 import com.sanisamoj.data.models.dataclass.PutUserProfile
 import com.sanisamoj.data.models.dataclass.UpdatePhoneWithValidationCode
@@ -11,6 +13,7 @@ import com.sanisamoj.data.models.dataclass.UserCreateRequest
 import com.sanisamoj.data.models.dataclass.UserResponse
 import com.sanisamoj.data.models.enums.Errors
 import com.sanisamoj.services.followers.FollowerService
+import com.sanisamoj.services.user.UserActivityService
 import com.sanisamoj.services.user.UserAuthenticationService
 import com.sanisamoj.services.user.UserManagerService
 import com.sanisamoj.services.user.UserService
@@ -35,6 +38,7 @@ import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 
 fun Route.userRouting() {
+
     route("/user") {
 
         rateLimit(RateLimitName("register")) {
@@ -186,6 +190,24 @@ fun Route.userRouting() {
 
     }
 
+    route("/profile") {
+
+        authenticate("user-jwt") {
+
+            // Responsible for returning events in which the user was present
+            get("/presences") {
+                val principal = call.principal<JWTPrincipal>()!!
+                val accountId = principal.payload.getClaim("id").asString()
+                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+                val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
+
+                val minimalEventResponseList = UserActivityService().getPresenceByUser(accountId, size, page)
+                return@get call.respond(minimalEventResponseList)
+            }
+
+        }
+
+    }
 
     route("/authentication") {
 

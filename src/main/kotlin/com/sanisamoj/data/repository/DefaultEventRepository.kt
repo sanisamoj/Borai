@@ -1,10 +1,6 @@
 package com.sanisamoj.data.repository
 
-import com.sanisamoj.data.models.dataclass.CustomException
-import com.sanisamoj.data.models.dataclass.Event
-import com.sanisamoj.data.models.dataclass.Presence
-import com.sanisamoj.data.models.dataclass.SearchEventFilters
-import com.sanisamoj.data.models.dataclass.SearchEventNearby
+import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.enums.Errors
 import com.sanisamoj.data.models.interfaces.EventRepository
 import com.sanisamoj.database.mongodb.*
@@ -63,7 +59,7 @@ class DefaultEventRepository: EventRepository {
         )
     }
 
-    override suspend fun incrementPresence(eventId: String) {
+    private suspend fun incrementPresence(eventId: String) {
         MongodbOperations().incrementField<Event>(
             collectionName = CollectionsInDb.Events,
             filter = OperationField(Fields.Id, ObjectId(eventId)),
@@ -72,7 +68,7 @@ class DefaultEventRepository: EventRepository {
         )
     }
 
-    override suspend fun decrementPresence(eventId: String) {
+    private suspend fun decrementPresence(eventId: String) {
         MongodbOperations().decrementField<Event>(
             collectionName = CollectionsInDb.Events,
             filter = OperationField(Fields.Id, ObjectId(eventId)),
@@ -185,7 +181,6 @@ class DefaultEventRepository: EventRepository {
         )
     }
 
-    // Falta realizar chamada
     override suspend fun getPresenceByUser(userId: String, pageSize: Int, pageNumber: Int): List<Presence> {
         val query = Document(Fields.UserId.title, userId)
         val sort = Document(Fields.CreatedAt.title, -1)
@@ -196,6 +191,14 @@ class DefaultEventRepository: EventRepository {
             pageNumber = pageNumber,
             query = query,
             sort = sort
+        )
+    }
+
+    override suspend fun getPresenceByUserCount(userId: String): Int {
+        val query = Document(Fields.UserId.title, userId)
+        return MongodbOperationsWithQuery().countDocumentsWithFilterWithQuery<Presence>(
+            collectionName = CollectionsInDb.Presences,
+            query = query
         )
     }
 
@@ -214,6 +217,73 @@ class DefaultEventRepository: EventRepository {
         }
 
         MongodbOperationsWithQuery().deleteItemWithQuery<Presence>(CollectionsInDb.Presences, query)
+    }
+
+    override suspend fun addComment(comment: Comment): Comment {
+        val commentId: String = MongodbOperations().register(CollectionsInDb.Comments, comment).toString()
+        comment.parentId?.let { incrementAnswer(it) }
+        return getCommentById(commentId)
+    }
+
+    private suspend fun incrementAnswer(commentId: String) {
+        MongodbOperations().incrementField<Comment>(
+            collectionName = CollectionsInDb.Comments,
+            filter = OperationField(Fields.Id, ObjectId(commentId)),
+            fieldName = Fields.AnswersCount.title,
+            incrementValue = 1
+        )
+    }
+
+    private suspend fun decrementAnswer(commentId: String) {
+        MongodbOperations().decrementField<Comment>(
+            collectionName = CollectionsInDb.Comments,
+            filter = OperationField(Fields.Id, ObjectId(commentId)),
+            fieldName = Fields.AnswersCount.title,
+            decrementValue = 1
+        )
+    }
+
+    override suspend fun getCommentById(commentId: String): Comment {
+        return MongodbOperations().findOne<Comment>(CollectionsInDb.Comments, OperationField(Fields.Id, ObjectId(commentId)))
+            ?: throw CustomException(Errors.CommentNotFound)
+    }
+
+    override suspend fun getCommentsFromTheEvent(eventId: String, pageSize: Int, pageNumber: Int): List<Comment> {
+        return MongodbOperationsWithQuery().findAllWithPagingAndFilterWithQuery(
+            collectionName = CollectionsInDb.Comments,
+            pageSize = pageSize,
+            pageNumber = pageNumber,
+            query = Document(Fields.EventId.title, eventId).append(Fields.ParentId.title, null)
+        )
+    }
+
+    override suspend fun getParentComments(eventId: String, parentId: String, pageSize: Int, pageNumber: Int): List<Comment> {
+        return MongodbOperationsWithQuery().findAllWithPagingAndFilterWithQuery(
+            collectionName = CollectionsInDb.Comments,
+            pageSize = pageSize,
+            pageNumber = pageNumber,
+            query = Document(Fields.EventId.title, eventId).append(Fields.ParentId.title, parentId)
+        )
+    }
+
+    override suspend fun getCommentsFromTheEventCount(eventId: String): Int {
+        return MongodbOperationsWithQuery().countDocumentsWithFilterWithQuery<Comment>(
+            collectionName = CollectionsInDb.Comments,
+            query = Document(Fields.EventId.title, eventId).append(Fields.ParentId.title, null)
+        )
+    }
+
+    override suspend fun getParentCommentsCount(eventId: String, parentId: String): Int {
+        return MongodbOperationsWithQuery().countDocumentsWithFilterWithQuery<Comment>(
+            collectionName = CollectionsInDb.Comments,
+            query = Document(Fields.EventId.title, eventId).append(Fields.ParentId.title, parentId)
+        )
+    }
+
+    override suspend fun deleteComment(commentId: String) {
+        val comment = getCommentById(commentId)
+        comment.parentId?.let { decrementAnswer(it) }
+        MongodbOperations().deleteItem<Comment>(CollectionsInDb.Comments, OperationField(Fields.Id, ObjectId(commentId)))
     }
 
     override suspend fun getPresenceById(presenceId: String): Presence {

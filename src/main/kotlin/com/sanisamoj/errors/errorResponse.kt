@@ -51,6 +51,18 @@ fun errorResponse(exception: CustomException): Pair<HttpStatusCode, ErrorRespons
             HttpStatusCode.UnprocessableEntity to ErrorResponse(Errors.UserIsAlreadyOnTheFollowersList.description)
         }
 
+        Errors.CommentsCannotExceedLevelOneResponses -> {
+            HttpStatusCode.UnprocessableEntity to ErrorResponse(Errors.CommentsCannotExceedLevelOneResponses.description)
+        }
+
+        Errors.FollowRequestAlreadyExists -> {
+            HttpStatusCode.Conflict to ErrorResponse(Errors.FollowRequestAlreadyExists.description)
+        }
+
+        Errors.UserIsNotPresentInTheListOfFollowing -> {
+            HttpStatusCode.UnprocessableEntity to ErrorResponse(Errors.UserIsNotPresentInTheListOfFollowing.description)
+        }
+
         Errors.InactiveAccount -> {
             HttpStatusCode.Forbidden to ErrorResponse(
                 error = Errors.InactiveAccount.description,

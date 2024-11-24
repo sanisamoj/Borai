@@ -164,4 +164,42 @@ fun Route.eventRouting() {
 
     }
 
+    route("/comment") {
+
+        authenticate("user-jwt") {
+
+            // Responsible for adding comment
+            post {
+                val principal: JWTPrincipal = call.principal()!!
+                val accountId: String = principal.payload.getClaim("id").asString()
+                val commentRequest: CommentRequest = call.receive<CommentRequest>()
+
+                val commentResponse: CommentResponse = EventHandlerService().addComment(accountId, commentRequest)
+                return@post call.respond(HttpStatusCode.Created, commentResponse)
+            }
+
+        }
+
+        // Responsible for returning comments
+        get {
+            val id = call.request.queryParameters["eventId"].toString()
+            val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+            val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
+
+            val commentResponseList: GenericResponseWithPagination<CommentResponse> = EventHandlerService().getCommentsFromTheEvent(id, size, page)
+            return@get call.respond(commentResponseList)
+        }
+
+        // Responsible for returning parent comments
+        get("/parent") {
+            val eventId = call.request.queryParameters["eventId"].toString()
+            val parentId = call.request.queryParameters["parentId"].toString()
+            val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+            val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
+
+            val commentResponseList: GenericResponseWithPagination<CommentResponse> = EventHandlerService().getParentComments(eventId, parentId, size, page)
+            return@get call.respond(commentResponseList)
+        }
+    }
+
 }

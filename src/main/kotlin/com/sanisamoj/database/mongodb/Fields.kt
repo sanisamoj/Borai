@@ -19,6 +19,7 @@ enum class Fields(val title: String) {
     CreatedAt(title = "createdAt"),
     PromoterId(title = "promoterId"),
     FollowerIds(title = "followerIds"),
+    AnswersCount(title = "answersCount"),
     FollowingIds(title = "followingIds"),
     ImageProfile(title = "imageProfile"),
     AccountStatus(title = "accountStatus"),

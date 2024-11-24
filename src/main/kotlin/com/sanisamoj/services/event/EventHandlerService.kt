@@ -63,12 +63,72 @@ class EventHandlerService(
         return minimalUserResponseList
     }
 
+    suspend fun addComment(userId: String, commentRequest: CommentRequest): CommentResponse {
+        val user: User = repository.getUserById(userId)
+
+        // Checks if the comment is at the first level
+        commentRequest.parentId?.let {
+            val comment: Comment = eventRepository.getCommentById(it)
+            if(comment.parentId != null) throw CustomException(Errors.CommentsCannotExceedLevelOneResponses)
+        }
+
+        val comment = Comment(
+            eventId = commentRequest.eventId,
+            userId = userId,
+            nick = user.nick,
+            imageProfile = user.imageProfile,
+            text = commentRequest.comment,
+            parentId = commentRequest.parentId
+        )
+
+        eventRepository.addComment(comment)
+        return commentResponseFactory(comment)
+    }
+
+    suspend fun getCommentsFromTheEvent(eventId: String, pageSize: Int, pageNumber: Int): GenericResponseWithPagination<CommentResponse> {
+        val comments: List<Comment> = eventRepository.getCommentsFromTheEvent(eventId, pageSize, pageNumber)
+
+        val commentsCount: Int = eventRepository.getCommentsFromTheEventCount(eventId)
+        val paginationResponse: PaginationResponse = paginationMethod(commentsCount.toDouble(), pageSize, pageNumber)
+
+        return GenericResponseWithPagination<CommentResponse>(
+            content = comments.map { commentResponseFactory(it) },
+            paginationResponse = paginationResponse
+        )
+    }
+
+    suspend fun getParentComments(eventId: String, parentId: String, pageSize: Int, pageNumber: Int): GenericResponseWithPagination<CommentResponse> {
+        val comments: List<Comment> = eventRepository.getParentComments(eventId, parentId, pageSize, pageNumber)
+
+        val commentsCount: Int = eventRepository.getParentCommentsCount(eventId, parentId)
+        val paginationResponse: PaginationResponse = paginationMethod(commentsCount.toDouble(), pageSize, pageNumber)
+
+        return GenericResponseWithPagination<CommentResponse>(
+            content = comments.map { commentResponseFactory(it) },
+            paginationResponse = paginationResponse
+        )
+    }
+
     private fun presenceResponseFactory(presence: Presence): MinimalUserResponse {
         return MinimalUserResponse(
             id = presence.userId,
             nick = presence.nick,
             imageProfile = presence.imageProfile,
             accountType = presence.accountType
+        )
+    }
+
+    private fun commentResponseFactory(comment: Comment): CommentResponse {
+        return CommentResponse(
+            id = comment.id.toString(),
+            eventId = comment.eventId,
+            userId = comment.userId,
+            nick = comment.nick,
+            imageProfile = comment.imageProfile,
+            comment = comment.text,
+            parentId = comment.parentId,
+            answersCount = comment.answersCount,
+            createdAt = comment.createdAt.toString()
         )
     }
 
