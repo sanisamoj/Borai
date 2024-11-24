@@ -20,14 +20,20 @@ class FollowerService(
     }
 
     suspend fun acceptFollowRequest(followerId: String, followingId: String) {
+        val pendingFollowRequestIds: List<String> = repository.getPendingFollowRequests(followingId)
+        if(!pendingFollowRequestIds.contains(followerId)) throw CustomException(Errors.FollowerNotFound)
         repository.acceptFollowRequest(followerId, followingId)
     }
 
     suspend fun rejectFollowRequest(followerId: String, followingId: String) {
+        val pendingFollowRequestIds: List<String> = repository.getPendingFollowRequests(followerId)
+        if(!pendingFollowRequestIds.contains(followingId)) throw CustomException(Errors.FollowerNotFound)
         repository.rejectFollowRequest(followingId, followerId)
     }
 
     suspend fun cancelFollowRequest(followerId: String, followingId: String) {
+        val pendingSentRequestIds: List<String> = repository.getPendingSentRequests(followerId)
+        if(!pendingSentRequestIds.contains(followingId)) throw CustomException(Errors.FollowerNotFound)
         repository.cancelFollowRequest(followerId, followingId)
     }
 

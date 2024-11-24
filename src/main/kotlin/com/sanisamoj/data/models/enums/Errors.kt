@@ -21,6 +21,7 @@ enum class Errors(val description: String) {
     UserAlreadyExists("User already exists!"),
     InvalidParameters("Invalid parameters!"),
     UnableToComplete("Unable to complete!"),
+    FollowerNotFound("Follower not found!"),
     InvalidLogin("Invalid email/password!"),
     PresenceNotFound("Presence not found!"),
     CommentNotFound("Comment not found!"),

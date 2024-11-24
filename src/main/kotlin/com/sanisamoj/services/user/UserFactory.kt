@@ -1,10 +1,11 @@
 package com.sanisamoj.services.user
 
-import com.sanisamoj.data.models.dataclass.*
+import com.sanisamoj.data.models.dataclass.MinimalUserResponse
+import com.sanisamoj.data.models.dataclass.User
+import com.sanisamoj.data.models.dataclass.UserCreateRequest
+import com.sanisamoj.data.models.dataclass.UserResponse
 import com.sanisamoj.data.models.enums.AccountStatus
-import com.sanisamoj.data.models.enums.AccountType
 import org.mindrot.jbcrypt.BCrypt
-import kotlin.String
 
 object UserFactory {
     fun userResponse(user: User): UserResponse {
@@ -39,6 +40,7 @@ object UserFactory {
     fun minimalUserResponseWithUser(user: User): MinimalUserResponse {
         return MinimalUserResponse(
             id = user.id.toString(),
+            bio = user.bio,
             nick = user.nick,
             imageProfile = user.imageProfile,
             accountType = user.type

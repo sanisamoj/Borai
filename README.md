@@ -146,4 +146,3 @@ MODERATOR_SECRET=
 ## Endpoints disponíveis
 No momento apenas alguns endpoints estão disponíveis, e estão hospedados na página de endpoints do Postman.
 https://documenter.getpostman.com/view/29175154/2sAYBPnEij
-> As respostas dos endpoints estão incompletas pois o projeto precisa alcançar uma versão estável para que não haja mudanças frequentes nas respostas das requisições e para que se mantenha atualizada.💡

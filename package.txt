@@ -1,3 +1,11 @@
+v0.1.7
+
+ - Identificação de mais erros.
+  * Caso não exista usuários para serem aceitos ou rejeitados nas listas pertinentes de pendência de seguidores.
+
+ - Correção do bug no método "rejectFollowRequest" na classe "FollowerService".
+  * O Id "followingId" não estava sendo repassado corretamente.
+
 v0.1.6
 
  - Implementação do sistema de comentários.

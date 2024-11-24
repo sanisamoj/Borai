@@ -63,6 +63,10 @@ fun errorResponse(exception: CustomException): Pair<HttpStatusCode, ErrorRespons
             HttpStatusCode.UnprocessableEntity to ErrorResponse(Errors.UserIsNotPresentInTheListOfFollowing.description)
         }
 
+        Errors.FollowerNotFound -> {
+            HttpStatusCode.NotFound to ErrorResponse(Errors.FollowerNotFound.description)
+        }
+
         Errors.InactiveAccount -> {
             HttpStatusCode.Forbidden to ErrorResponse(
                 error = Errors.InactiveAccount.description,

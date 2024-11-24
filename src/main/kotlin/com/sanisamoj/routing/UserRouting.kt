@@ -1,16 +1,7 @@
 package com.sanisamoj.routing
 
 import com.sanisamoj.config.GlobalContext
-import com.sanisamoj.data.models.dataclass.CustomException
-import com.sanisamoj.data.models.dataclass.GenericResponseWithPagination
-import com.sanisamoj.data.models.dataclass.LoginRequest
-import com.sanisamoj.data.models.dataclass.LoginResponse
-import com.sanisamoj.data.models.dataclass.MinimalEventResponse
-import com.sanisamoj.data.models.dataclass.MinimalUserResponse
-import com.sanisamoj.data.models.dataclass.PutUserProfile
-import com.sanisamoj.data.models.dataclass.UpdatePhoneWithValidationCode
-import com.sanisamoj.data.models.dataclass.UserCreateRequest
-import com.sanisamoj.data.models.dataclass.UserResponse
+import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.enums.Errors
 import com.sanisamoj.services.followers.FollowerService
 import com.sanisamoj.services.user.UserActivityService
@@ -18,24 +9,15 @@ import com.sanisamoj.services.user.UserAuthenticationService
 import com.sanisamoj.services.user.UserManagerService
 import com.sanisamoj.services.user.UserService
 import com.sanisamoj.utils.converters.BytesConverter
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.MultiPartData
-import io.ktor.server.application.call
-import io.ktor.server.auth.authenticate
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.principal
-import io.ktor.server.plugins.ratelimit.RateLimitName
-import io.ktor.server.plugins.ratelimit.rateLimit
-import io.ktor.server.request.receive
-import io.ktor.server.request.receiveMultipart
-import io.ktor.server.response.respond
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.delete
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.put
-import io.ktor.server.routing.route
+import io.ktor.http.*
+import io.ktor.http.content.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
+import io.ktor.server.plugins.ratelimit.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 
 fun Route.userRouting() {
 
@@ -164,9 +146,9 @@ fun Route.userRouting() {
             post("/follow/cancel") {
                 val principal = call.principal<JWTPrincipal>()!!
                 val accountId = principal.payload.getClaim("id").asString()
-                val followerId = call.parameters["followerId"].toString()
+                val followingId = call.parameters["followingId"].toString()
 
-                FollowerService().cancelFollowRequest(accountId, followerId)
+                FollowerService().cancelFollowRequest(accountId, followingId)
                 return@post call.respond(HttpStatusCode.OK)
             }
 

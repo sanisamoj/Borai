@@ -21,6 +21,7 @@ import org.bson.types.ObjectId
 import java.io.File
 
 class DefaultRepository: DatabaseRepository {
+
     override suspend fun createUser(user: User): User {
         val userId: String = MongodbOperations().register(CollectionsInDb.Users, user).toString()
         val followers = Followers(id = ObjectId(userId))

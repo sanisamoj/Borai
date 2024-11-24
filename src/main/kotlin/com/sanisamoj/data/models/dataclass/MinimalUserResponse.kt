@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class MinimalUserResponse(
     val id: String,
     val nick: String,
+    val bio: String? = null,
     val imageProfile: String,
     val accountType: String,
 )
