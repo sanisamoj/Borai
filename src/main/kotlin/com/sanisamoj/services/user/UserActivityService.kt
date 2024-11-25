@@ -1,38 +1,43 @@
 package com.sanisamoj.services.user
 
 import com.sanisamoj.config.GlobalContext
-import com.sanisamoj.data.models.dataclass.Event
+import com.sanisamoj.data.models.dataclass.CustomException
 import com.sanisamoj.data.models.dataclass.GenericResponseWithPagination
 import com.sanisamoj.data.models.dataclass.MinimalEventResponse
-import com.sanisamoj.data.models.dataclass.Presence
+import com.sanisamoj.data.models.dataclass.ProfileResponse
+import com.sanisamoj.data.models.dataclass.User
+import com.sanisamoj.data.models.enums.Errors
+import com.sanisamoj.data.models.interfaces.DatabaseRepository
 import com.sanisamoj.data.models.interfaces.EventRepository
-import com.sanisamoj.utils.pagination.PaginationResponse
-import com.sanisamoj.utils.pagination.paginationMethod
 
 class UserActivityService(
-    private val eventRepository: EventRepository = GlobalContext.getEventRepository()
+    private val eventRepository: EventRepository = GlobalContext.getEventRepository(),
+    private val repository: DatabaseRepository = GlobalContext.getDatabaseRepository()
 ) {
+    suspend fun getProfileById(profileId: String): ProfileResponse {
+        val user: User = repository.getUserById(profileId)
+        val presencesCount: Int = eventRepository.getPresenceByUserCount(profileId)
+        val followers: Int = repository.getFollowers(profileId).size
+        val following: Int = repository.getFollowing(profileId).size
 
-    suspend fun getPresenceByUser(userId: String, pageSize: Int, pageNumber: Int): GenericResponseWithPagination<MinimalEventResponse> {
-        val presences: List<Presence> = eventRepository.getPresenceByUser(userId, pageSize, pageNumber)
-        val presencesCount: Double = eventRepository.getPresenceByUserCount(userId).toDouble()
-        val paginationResponse: PaginationResponse = paginationMethod(presencesCount, pageSize, pageNumber)
-
-        return GenericResponseWithPagination(
-            content = presences.map { minimalEventResponseFactory(it.eventId) },
-            paginationResponse = paginationResponse
+        return ProfileResponse(
+            id = user.id.toString(),
+            nick = user.nick,
+            bio = user.bio,
+            imageProfile = user.imageProfile,
+            type = user.type,
+            public = user.public,
+            events = presencesCount,
+            followers = followers,
+            following = following
         )
     }
 
-    private suspend fun minimalEventResponseFactory(eventId: String): MinimalEventResponse {
-        val event: Event = eventRepository.getEventById(eventId)
-        return MinimalEventResponse(
-            name = event.name,
-            description = event.description,
-            image = event.image,
-            presences = event.presences,
-            type = event.type,
-            date = event.date.toString()
-        )
+    suspend fun getPresencesFromProfile(userId: String, profileId: String, page: Int, size: Int): GenericResponseWithPagination<MinimalEventResponse> {
+        val mutual: List<String> = repository.getMutualFollowers(profileId)
+        val user: User = repository.getUserById(profileId)
+        if(!mutual.contains(userId) && user.public == false) throw CustomException(Errors.ProfileIsPrivate)
+
+        return UserHandlerService().getPresenceByUser(profileId, size, page)
     }
 }

@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.example</groupId>
     <artifactId>borai</artifactId>
-    <version>0.1.7</version>
+    <version>0.1.8</version>
     <name>Borai</name>
     <description>Borai</description>
     <properties>

@@ -6,6 +6,7 @@ import com.sanisamoj.data.models.enums.Errors
 import com.sanisamoj.services.followers.FollowerService
 import com.sanisamoj.services.user.UserActivityService
 import com.sanisamoj.services.user.UserAuthenticationService
+import com.sanisamoj.services.user.UserHandlerService
 import com.sanisamoj.services.user.UserManagerService
 import com.sanisamoj.services.user.UserService
 import com.sanisamoj.utils.converters.BytesConverter
@@ -176,6 +177,13 @@ fun Route.userRouting() {
 
         authenticate("user-jwt") {
 
+            // Responsible for returning a profile from the user
+            get {
+                val profileId = call.parameters["id"].toString()
+                val profileResponse: ProfileResponse = UserActivityService().getProfileById(profileId)
+                return@get call.respond(profileResponse)
+            }
+
             // Responsible for returning events in which the user was present
             get("/presences") {
                 val principal = call.principal<JWTPrincipal>()!!
@@ -183,9 +191,50 @@ fun Route.userRouting() {
                 val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
                 val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
 
-                val minimalEventResponseList = UserActivityService().getPresenceByUser(accountId, size, page)
+                val minimalEventResponseList = UserHandlerService().getPresenceByUser(accountId, size, page)
                 return@get call.respond(minimalEventResponseList)
             }
+
+            // Responsible for returning followers
+            get("/followers") {
+                val principal = call.principal<JWTPrincipal>()!!
+                val accountId = principal.payload.getClaim("id").asString()
+                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+                val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
+
+                val minimalUserResponseList = UserHandlerService().getFollowers(accountId, size, page)
+                return@get call.respond(minimalUserResponseList)
+            }
+
+            // Responsible for returning following
+            get("/following") {
+                val principal = call.principal<JWTPrincipal>()!!
+                val accountId = principal.payload.getClaim("id").asString()
+                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+                val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
+
+                val minimalUserResponseList = UserHandlerService().getFollowing(accountId, size, page)
+                return@get call.respond(minimalUserResponseList)
+            }
+
+            // Responsible for returning presences from profile
+            get("/other-presences") {
+                val principal = call.principal<JWTPrincipal>()!!
+                val accountId = principal.payload.getClaim("id").asString()
+                val profileId = call.request.queryParameters["id"].toString()
+                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+                val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
+
+                val minimalUserResponseList = UserActivityService().getPresencesFromProfile(
+                    userId = accountId,
+                    profileId = profileId,
+                    page = page,
+                    size = size
+                )
+
+                return@get call.respond(minimalUserResponseList)
+            }
+
 
         }
 

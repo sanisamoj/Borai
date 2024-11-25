@@ -26,7 +26,7 @@ WORKDIR /app
 
 # Copie o arquivo .env e o arquivo .jar criado no estágio de build para o diretório de trabalho
 COPY .env .
-COPY --from=build /app/target/borai-0.1.7-jar-with-dependencies.jar borai.jar
+COPY --from=build /app/target/borai-0.1.8-jar-with-dependencies.jar borai.jar
 
 # Exponha a porta 7373
 EXPOSE 7373

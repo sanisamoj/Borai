@@ -1,3 +1,11 @@
+v0.1.8
+
+ - Sistema de privacidade.
+  * Retorno de contas respeitando a privacidade.
+  * Se a conta for privada e o requisitante não for um seguidor, apenas informações básicas serão exibidas.
+
+ - Funcionalidade para retorno com paginação de seguidores e de contas seguidas.
+
 v0.1.7
 
  - Identificação de mais erros.

@@ -22,6 +22,7 @@ enum class Errors(val description: String) {
     InvalidParameters("Invalid parameters!"),
     UnableToComplete("Unable to complete!"),
     FollowerNotFound("Follower not found!"),
+    ProfileIsPrivate("Profile is private!"),
     InvalidLogin("Invalid email/password!"),
     PresenceNotFound("Presence not found!"),
     CommentNotFound("Comment not found!"),
