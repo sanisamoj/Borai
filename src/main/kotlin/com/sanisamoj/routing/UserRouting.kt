@@ -3,6 +3,8 @@ package com.sanisamoj.routing
 import com.sanisamoj.config.GlobalContext
 import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.enums.Errors
+import com.sanisamoj.services.event.EventHandlerService
+import com.sanisamoj.services.event.EventManagerService
 import com.sanisamoj.services.followers.FollowerService
 import com.sanisamoj.services.user.UserActivityService
 import com.sanisamoj.services.user.UserAuthenticationService
@@ -169,6 +171,42 @@ fun Route.userRouting() {
                 return@get call.respond(minimalUserResponseList)
             }
 
+            // Responsible for update event
+            put("/event") {
+                val principal: JWTPrincipal = call.principal()!!
+                val userId: String = principal.payload.getClaim("id").asString()
+                val eventId: String = call.parameters["eventId"].toString()
+                val putEventRequest: PutEventRequest = call.receive<PutEventRequest>()
+                val eventManagerService = EventManagerService()
+                var updatedEventResponse: EventResponse
+
+                when {
+                    putEventRequest.name != null -> {
+                        updatedEventResponse = eventManagerService.updateName(eventId, userId, putEventRequest.name)
+                    }
+                    putEventRequest.description != null -> {
+                        updatedEventResponse = eventManagerService.updateDescription(eventId, userId, putEventRequest.description)
+                    }
+                    putEventRequest.address != null -> {
+                        updatedEventResponse = eventManagerService.updateAddress(eventId, userId, putEventRequest.address)
+                    }
+                    putEventRequest.date != null -> {
+                        updatedEventResponse = eventManagerService.updateDate(eventId, userId, putEventRequest.date)
+                    }
+                    putEventRequest.type != null -> {
+                        updatedEventResponse = eventManagerService.updateType(eventId, userId, putEventRequest.type)
+                    }
+                    putEventRequest.status != null -> {
+                        updatedEventResponse = eventManagerService.updateStatus(eventId, userId, putEventRequest.status)
+                    }
+                    else -> {
+                        return@put call.respond(HttpStatusCode.BadRequest, "No valid data to update")
+                    }
+                }
+
+                return@put call.respond(updatedEventResponse)
+            }
+
         }
 
     }
@@ -235,6 +273,23 @@ fun Route.userRouting() {
                 return@get call.respond(minimalUserResponseList)
             }
 
+            //Responsible for returning own event
+            get("/events") {
+                val principal = call.principal<JWTPrincipal>()!!
+                val accountId = principal.payload.getClaim("id").asString()
+                val all: Boolean = call.request.queryParameters["all"] == "true"
+                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+                val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
+
+                if(all) {
+                    val eventResponseList:  List<EventResponse> = EventHandlerService().getAllEventsFromAccount(accountId)
+                    return@get call.respond(eventResponseList)
+                } else {
+                    val eventResponseListWithPagination = EventHandlerService().getEventsFromAccount(accountId, size, page)
+                    return@get call.respond(eventResponseListWithPagination)
+                }
+
+            }
 
         }
 

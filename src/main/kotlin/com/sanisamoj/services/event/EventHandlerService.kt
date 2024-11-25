@@ -109,6 +109,23 @@ class EventHandlerService(
         )
     }
 
+    suspend fun getAllEventsFromAccount(accountId: String): List<EventResponse> {
+        val events: List<Event> = eventRepository.getAllEventFromAccount(accountId)
+        val eventService = EventService(eventRepository, repository)
+        return events.map { eventService.eventResponseFactory(it) }
+    }
+
+    suspend fun getEventsFromAccount(accountId: String, pageSize: Int, pageNumber: Int): GenericResponseWithPagination<EventResponse> {
+        val events: List<Event> = eventRepository.getAllEventFromAccountWithPagination(accountId, pageNumber, pageSize)
+        val eventService = EventService(eventRepository, repository)
+        val eventResponseList: List<EventResponse> = events.map { eventService.eventResponseFactory(it) }
+
+        val eventsCount: Int = eventRepository.getAllEventFromAccountCount(accountId)
+        val paginationResponse: PaginationResponse = paginationMethod(eventsCount.toDouble(), pageSize, pageNumber)
+
+        return GenericResponseWithPagination(eventResponseList, paginationResponse)
+    }
+
     private fun presenceResponseFactory(presence: Presence): MinimalUserResponse {
         return MinimalUserResponse(
             id = presence.userId,

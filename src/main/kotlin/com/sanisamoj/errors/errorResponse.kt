@@ -71,6 +71,10 @@ fun errorResponse(exception: CustomException): Pair<HttpStatusCode, ErrorRespons
             HttpStatusCode.Forbidden to ErrorResponse(Errors.ProfileIsPrivate.description)
         }
 
+        Errors.TheEventHasAnotherOwner -> {
+            HttpStatusCode.Forbidden to ErrorResponse(Errors.TheEventHasAnotherOwner.description)
+        }
+
         Errors.InactiveAccount -> {
             HttpStatusCode.Forbidden to ErrorResponse(
                 error = Errors.InactiveAccount.description,

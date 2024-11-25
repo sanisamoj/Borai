@@ -1,3 +1,11 @@
+v0.1.9
+
+ - Funcionalidade para retornar eventos criados pelo usuário.
+
+ - Funcionalidade para gerenciar os eventos.
+  * Possibilidade para alterar descrição, endereço, data, status e tipo.
+  * Funcionalidade para alterar o status do evento.
+
 v0.1.8
 
  - Sistema de privacidade.

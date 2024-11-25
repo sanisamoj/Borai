@@ -2,7 +2,6 @@ package com.sanisamoj.database.mongodb
 
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Updates
-import com.sanisamoj.data.models.dataclass.Event
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -63,7 +62,8 @@ class MongodbOperations {
         collectionName: CollectionsInDb,
         pageSize: Int,
         pageNumber: Int,
-        filter: OperationField
+        filter: OperationField,
+        sort: Document = Document()
     ): List<T> {
         val database = MongoDatabase.getDatabase()
         val collection = database.getCollection<T>(collectionName.name)
@@ -73,6 +73,7 @@ class MongodbOperations {
         val result: List<T> = collection.find(Document(filter.field.title, filter.value))
             .skip(skip)
             .limit(pageSize)
+            .sort(sort)
             .toList()
 
         return result

@@ -23,12 +23,20 @@ class DefaultEventRepository: EventRepository {
         return MongodbOperations().findAllByFilter(CollectionsInDb.Events, OperationField(Fields.AccountId, accountId))
     }
 
+    override suspend fun getAllEventFromAccountCount(accountId: String): Int {
+        return MongodbOperations().countDocumentsWithFilter<Event>(
+            collectionName = CollectionsInDb.Events,
+            filter = OperationField(Fields.UserId, accountId)
+        )
+    }
+
     override suspend fun getAllEventFromAccountWithPagination(accountId: String, page: Int, size: Int): List<Event> {
         return MongodbOperations().findAllWithPagingAndFilter(
             collectionName = CollectionsInDb.Events,
             pageSize = size,
             pageNumber = page,
-            filter = OperationField(Fields.AccountId, accountId)
+            filter = OperationField(Fields.AccountId, accountId),
+            sort = Document(Fields.CreatedAt.title, -1)
         )
     }
 
@@ -97,6 +105,14 @@ class DefaultEventRepository: EventRepository {
             collectionName = CollectionsInDb.Events,
             query = query
         )
+    }
+
+    override suspend fun updateEvent(eventId: String, update: OperationField): Event {
+        return MongodbOperations().updateAndReturnItem<Event>(
+            collectionName = CollectionsInDb.Events,
+            filter = OperationField(Fields.Id, ObjectId(eventId)),
+            update = update
+        ) ?: throw CustomException(Errors.EventNotFound)
     }
 
     private fun searchEventFiltersDocumentBuilder(filters: SearchEventFilters): Document {

@@ -56,7 +56,7 @@ class EventService(
         )
     }
 
-    private suspend fun eventResponseFactory(event: Event): EventResponse {
+    suspend fun eventResponseFactory(event: Event): EventResponse {
         val user: User = repository.getUserById(event.accountId)
 
         val minimalUserResponse = MinimalUserResponse(
