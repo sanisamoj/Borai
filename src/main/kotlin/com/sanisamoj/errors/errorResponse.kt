@@ -75,6 +75,10 @@ fun errorResponse(exception: CustomException): Pair<HttpStatusCode, ErrorRespons
             HttpStatusCode.Forbidden to ErrorResponse(Errors.TheEventHasAnotherOwner.description)
         }
 
+        Errors.InvalidParameters -> {
+            HttpStatusCode.BadRequest to ErrorResponse(Errors.InvalidParameters.description)
+        }
+
         Errors.InactiveAccount -> {
             HttpStatusCode.Forbidden to ErrorResponse(
                 error = Errors.InactiveAccount.description,

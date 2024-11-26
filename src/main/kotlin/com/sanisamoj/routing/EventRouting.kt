@@ -28,6 +28,16 @@ fun Route.eventRouting() {
                 return@post call.respond(HttpStatusCode.Created, eventResponse)
             }
 
+            // Responsible for deleting event
+            delete {
+                val principal: JWTPrincipal = call.principal()!!
+                val accountId: String = principal.payload.getClaim("id").asString()
+                val eventId: String = call.parameters["eventId"].toString()
+
+                EventService().deleteEvent(eventId, accountId)
+                return@delete call.respond(HttpStatusCode.OK)
+            }
+
             // Responsible for returning events by nearby filters
             get("/nearby") {
                 val longitude = call.request.queryParameters["longitude"]?.toDoubleOrNull()
@@ -176,6 +186,15 @@ fun Route.eventRouting() {
 
                 val commentResponse: CommentResponse = EventHandlerService().addComment(accountId, commentRequest)
                 return@post call.respond(HttpStatusCode.Created, commentResponse)
+            }
+
+            // Responsible for deleting comment
+            delete {
+                val principal: JWTPrincipal = call.principal()!!
+                val accountId: String = principal.payload.getClaim("id").asString()
+                val commentId: String = call.parameters["id"].toString()
+                EventHandlerService().deleteComment(commentId, accountId)
+                return@delete call.respond(HttpStatusCode.OK)
             }
 
         }

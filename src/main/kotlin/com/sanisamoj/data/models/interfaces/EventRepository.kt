@@ -9,6 +9,7 @@ import com.sanisamoj.database.mongodb.OperationField
 
 interface EventRepository {
     suspend fun createEvent(event: Event): Event
+    suspend fun deleteEvent(eventId: String)
     suspend fun getEventById(eventId: String): Event
     suspend fun getAllEventFromAccount(accountId: String): List<Event>
     suspend fun getAllEventFromAccountCount(accountId: String): Int

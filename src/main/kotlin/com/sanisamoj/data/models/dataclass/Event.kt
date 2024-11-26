@@ -11,7 +11,7 @@ data class Event(
     val name: String,
     val description: String,
     val image: String,
-    val otherImages: List<String>,
+    val otherImages: List<String>? = null,
     val address: Address,
     val date: LocalDateTime,
     val presences: Int = 0,

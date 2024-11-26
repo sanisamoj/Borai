@@ -16,6 +16,7 @@ data class User(
     val type: String,
     val accountStatus: String,
     val public: Boolean = true,
+    val mediaStorage: List<MediaStorage> = listOf(),
     val validationCode: Int? = null,
     val createdAt: LocalDateTime = LocalDateTime.now()
 )

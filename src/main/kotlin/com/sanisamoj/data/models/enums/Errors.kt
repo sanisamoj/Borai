@@ -6,6 +6,7 @@ enum class Errors(val description: String) {
     CommentsCannotExceedLevelOneResponses("Comments cannot exceed level one responses!"),
     UserIsAlreadyOnTheFollowersList("User is already on the followers list."),
     LimitOnTheNumberOfImageReached("Limit on the number of images reached."),
+    ImageNotFoundInOtherImages("Image not found in event's other images!"),
     TheLimitMaxImageAllowed("The limit of images has been exceeded!"),
     MaxRetriesReached("Max retries reached, token update failed."),
     FollowRequestAlreadyExists("Follow request already exists!"),

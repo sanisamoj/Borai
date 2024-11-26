@@ -14,6 +14,10 @@ class DefaultEventRepository: EventRepository {
         return getEventById(eventId)
     }
 
+    override suspend fun deleteEvent(eventId: String) {
+        MongodbOperations().deleteItem<Event>(CollectionsInDb.Events, OperationField(Fields.Id, ObjectId(eventId)))
+    }
+
     override suspend fun getEventById(eventId: String): Event {
         return MongodbOperations().findOne<Event>(CollectionsInDb.Events, OperationField(Fields.Id, ObjectId(eventId)))
             ?: throw CustomException(Errors.EventNotFound)

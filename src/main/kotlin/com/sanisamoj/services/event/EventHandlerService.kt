@@ -85,6 +85,12 @@ class EventHandlerService(
         return commentResponseFactory(comment)
     }
 
+    suspend fun deleteComment(commentId: String, userId: String) {
+        val comment: Comment = eventRepository.getCommentById(commentId)
+        if(comment.userId != userId) throw CustomException(Errors.UnableToComplete)
+        eventRepository.deleteComment(commentId)
+    }
+
     suspend fun getCommentsFromTheEvent(eventId: String, pageSize: Int, pageNumber: Int): GenericResponseWithPagination<CommentResponse> {
         val comments: List<Comment> = eventRepository.getCommentsFromTheEvent(eventId, pageSize, pageNumber)
 

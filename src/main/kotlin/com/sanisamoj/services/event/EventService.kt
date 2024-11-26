@@ -2,11 +2,14 @@ package com.sanisamoj.services.event
 
 import com.sanisamoj.config.GlobalContext
 import com.sanisamoj.data.models.dataclass.*
+import com.sanisamoj.data.models.enums.Errors
 import com.sanisamoj.data.models.interfaces.DatabaseRepository
 import com.sanisamoj.data.models.interfaces.EventRepository
+import com.sanisamoj.services.media.MediaService
 import com.sanisamoj.utils.converters.converterStringToLocalDateTime
 import com.sanisamoj.utils.pagination.PaginationResponse
 import com.sanisamoj.utils.pagination.paginationMethod
+import java.io.File
 
 class EventService(
     private val eventRepository: EventRepository = GlobalContext.getEventRepository(),
@@ -14,6 +17,9 @@ class EventService(
 ) {
 
     suspend fun createEvent(accountId: String, eventRequest: CreateEventRequest): EventResponse {
+        val file: File = MediaService().getMedia(eventRequest.image)
+        if(!file.exists()) throw CustomException(Errors.UnableToComplete)
+
         val event = Event(
             accountId = accountId,
             name = eventRequest.name,
@@ -27,6 +33,18 @@ class EventService(
 
         eventRepository.createEvent(event)
         return eventResponseFactory(event)
+    }
+
+    suspend fun deleteEvent(eventId: String, accountId: String) {
+        val event: Event = eventRepository.getEventById(eventId)
+        if(event.accountId != accountId) throw CustomException(Errors.TheEventHasAnotherOwner)
+
+        val allPresences: List<Presence> = eventRepository.getAllPublicPresencesFromTheEvent(eventId)
+        allPresences.forEach { presence ->
+            try {
+                eventRepository.unmarkPresence(presence.userId, eventId)
+            } catch (_: Throwable) {}
+        }
     }
 
     suspend fun getEventById(eventId: String): EventResponse {

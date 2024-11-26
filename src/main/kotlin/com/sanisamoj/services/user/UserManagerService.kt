@@ -3,10 +3,7 @@ package com.sanisamoj.services.user
 import com.sanisamoj.api.bot.MessageToSend
 import com.sanisamoj.config.GlobalContext
 import com.sanisamoj.config.GlobalContext.NOTIFICATION_BOT_ID
-import com.sanisamoj.data.models.dataclass.CustomException
-import com.sanisamoj.data.models.dataclass.SavedMediaResponse
-import com.sanisamoj.data.models.dataclass.User
-import com.sanisamoj.data.models.dataclass.UserResponse
+import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.enums.Errors
 import com.sanisamoj.data.models.interfaces.BotRepository
 import com.sanisamoj.data.models.interfaces.DatabaseRepository
@@ -34,11 +31,11 @@ class UserManagerService(
 
     suspend fun updateImageProfile(multipartData: MultiPartData, userId: String): UserResponse {
         // Try saving the image
-        val savedMediaResponse: List<SavedMediaResponse> = MediaService().savePublicMedia(multipartData)
+        val savedMediaResponse: List<SavedMediaResponse> = MediaService().savePublicMedia(multipartData, userId)
 
         // Remove the old image
         val user: User = databaseRepository.getUserById(userId)
-        if (user.imageProfile != "") MediaService().deleteMedia(user.imageProfile)
+        if (user.imageProfile != "") MediaService().deleteMedia(user.imageProfile, userId)
 
         // Changes the record in the new image database
         val updatedUser: User = databaseRepository.updateUser(userId, OperationField(Fields.ImageProfile, savedMediaResponse[0].filename))
@@ -94,6 +91,13 @@ class UserManagerService(
         } else {
             throw CustomException(Errors.InvalidValidationCode)
         }
+    }
+
+    suspend fun getAllMediaStorage(userId: String): List<MediaStorage> {
+        val user: User = databaseRepository.getUserById(userId)
+        var mediaStorageList: MutableList<MediaStorage> = mutableListOf<MediaStorage>()
+        user.mediaStorage.forEach { mediaStorageList.add(it) }
+        return mediaStorageList
     }
 
 }
