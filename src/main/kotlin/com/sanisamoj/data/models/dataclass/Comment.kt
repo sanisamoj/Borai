@@ -13,5 +13,6 @@ data class Comment(
     val text: String,
     val parentId: String? = null,
     val answersCount: Int = 0,
+    val ups: List<String> = listOf(),
     val createdAt: LocalDateTime = LocalDateTime.now()
 )

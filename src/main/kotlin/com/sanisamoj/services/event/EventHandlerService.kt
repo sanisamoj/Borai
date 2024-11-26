@@ -3,8 +3,11 @@ package com.sanisamoj.services.event
 import com.sanisamoj.config.GlobalContext
 import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.enums.Errors
+import com.sanisamoj.data.models.enums.EventStatus
 import com.sanisamoj.data.models.interfaces.DatabaseRepository
 import com.sanisamoj.data.models.interfaces.EventRepository
+import com.sanisamoj.database.mongodb.Fields
+import com.sanisamoj.database.mongodb.OperationField
 import com.sanisamoj.utils.pagination.PaginationResponse
 import com.sanisamoj.utils.pagination.paginationMethod
 
@@ -153,6 +156,41 @@ class EventHandlerService(
             answersCount = comment.answersCount,
             createdAt = comment.createdAt.toString()
         )
+    }
+
+    suspend fun submitEventVote(userId: String, eventVote: EventVote) {
+        val event: Event = eventRepository.getEventById(eventVote.eventId)
+        if(event.status != EventStatus.COMPLETED.name) throw CustomException(Errors.EventNotEnded)
+
+        val userAlreadyVote: EventVote? = event.eventVotes.find { it.userId == userId }
+        if(userAlreadyVote != null) throw CustomException(Errors.UserAlreadyVoted)
+
+        if(eventVote.rating > 5 || eventVote.rating < 1) throw CustomException(Errors.InvalidRating)
+
+        val presence: Presence? = eventRepository.getPresenceByEventAndUser(eventVote.eventId, userId)
+        if(presence != null) throw CustomException(Errors.UserDidNotAttendEvent)
+
+        eventRepository.submitEventVote(eventVote.copy(userId = userId))
+
+        val updatedEvent: Event = eventRepository.getEventById(eventVote.eventId)
+        val newScore: Double = updatedEvent.getAverageScore()
+        eventRepository.updateEvent(eventVote.eventId, OperationField(Fields.Score, newScore))
+    }
+
+    suspend fun upComment(commentId: String, userId: String) {
+        val comment: Comment = eventRepository.getCommentById(commentId)
+        val userIdAlreadyUpVoted: String? = comment.ups.find { it == userId }
+        if(userIdAlreadyUpVoted != null) throw CustomException(Errors.UserHasAlreadyUpvoted)
+
+        eventRepository.upComment(commentId, userId)
+    }
+
+    suspend fun downComment(commentId: String, userId: String) {
+        val comment: Comment = eventRepository.getCommentById(commentId)
+        val userIdAlreadyUpVoted: String? = comment.ups.find { it == userId }
+        if(userIdAlreadyUpVoted == null) throw CustomException(Errors.CannotRemoveUpIfNotMade)
+
+        eventRepository.downComment(commentId, userId)
     }
 
 }

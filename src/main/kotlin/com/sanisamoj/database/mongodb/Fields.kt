@@ -2,6 +2,7 @@ package com.sanisamoj.database.mongodb
 
 enum class Fields(val title: String) {
     Id(title = "_id"),
+    Ups(title = "ups"),
     Bio(title = "bio"),
     Nick(title = "nick"),
     Name(title = "name"),
@@ -10,6 +11,7 @@ enum class Fields(val title: String) {
     Email(title = "email"),
     Image(title = "image"),
     Phone(title = "phone"),
+    Score(title = "score"),
     Status(title = "status"),
     UserId(title = "userId"),
     EventId(title = "eventId"),
@@ -20,6 +22,7 @@ enum class Fields(val title: String) {
     Presences(title = "presences"),
     CreatedAt(title = "createdAt"),
     PromoterId(title = "promoterId"),
+    EventVotes(title = "eventVotes"),
     FollowerIds(title = "followerIds"),
     Description(title = "description"),
     OtherImages(title = "otherImages"),

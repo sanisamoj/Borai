@@ -79,6 +79,31 @@ fun errorResponse(exception: CustomException): Pair<HttpStatusCode, ErrorRespons
             HttpStatusCode.BadRequest to ErrorResponse(Errors.InvalidParameters.description)
         }
 
+        Errors.EventNotEnded -> {
+            HttpStatusCode.Forbidden to ErrorResponse(Errors.EventNotEnded.description)
+        }
+
+        Errors.UserAlreadyVoted -> {
+            HttpStatusCode.Conflict to ErrorResponse(Errors.UserAlreadyVoted.description)
+        }
+
+        Errors.InvalidRating -> {
+            HttpStatusCode.BadRequest to ErrorResponse(Errors.InvalidRating.description)
+        }
+
+        Errors.UserDidNotAttendEvent -> {
+            HttpStatusCode.Forbidden to ErrorResponse(Errors.UserDidNotAttendEvent.description)
+        }
+
+        Errors.CannotRemoveUpIfNotMade -> {
+            HttpStatusCode.UnprocessableEntity to ErrorResponse(Errors.CannotRemoveUpIfNotMade.description)
+        }
+
+        Errors.UserHasAlreadyUpvoted -> {
+            HttpStatusCode.Conflict to ErrorResponse(Errors.UserHasAlreadyUpvoted.description)
+        }
+
+
         Errors.InactiveAccount -> {
             HttpStatusCode.Forbidden to ErrorResponse(
                 error = Errors.InactiveAccount.description,

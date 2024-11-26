@@ -1,3 +1,10 @@
+v0.1.11
+
+ - Implementação de score rate para eventos.
+  * Quando finalizado, o evento pode receber votações de 1 a 5, e recebendo uma média.
+
+ - Sistema Up para comentários.
+
 v0.1.10
 
  - Funcionalidade para deletar um evento.

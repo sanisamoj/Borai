@@ -269,11 +269,16 @@ class DefaultEventRepository: EventRepository {
     }
 
     override suspend fun getCommentsFromTheEvent(eventId: String, pageSize: Int, pageNumber: Int): List<Comment> {
+        val sortQuery = Document()
+            .append("answersCount", -1)
+            .append("ups.size", -1)
+
         return MongodbOperationsWithQuery().findAllWithPagingAndFilterWithQuery(
             collectionName = CollectionsInDb.Comments,
             pageSize = pageSize,
             pageNumber = pageNumber,
-            query = Document(Fields.EventId.title, eventId).append(Fields.ParentId.title, null)
+            query = Document(Fields.EventId.title, eventId).append(Fields.ParentId.title, null),
+            sort = sortQuery
         )
     }
 
@@ -304,6 +309,24 @@ class DefaultEventRepository: EventRepository {
         val comment = getCommentById(commentId)
         comment.parentId?.let { decrementAnswer(it) }
         MongodbOperations().deleteItem<Comment>(CollectionsInDb.Comments, OperationField(Fields.Id, ObjectId(commentId)))
+    }
+
+    override suspend fun submitEventVote(eventVote: EventVote) {
+        val query = Document(Fields.Id.title, ObjectId(eventVote.eventId))
+        val update = Document(Fields.EventVotes.title, eventVote)
+        MongodbOperationsWithQuery().pushItemWithQuery<Event>(CollectionsInDb.Events, query, update)
+    }
+
+    override suspend fun upComment(commentId: String, userId: String) {
+        val query = Document(Fields.Id.title, ObjectId(commentId))
+        val update = Document(Fields.Ups.title, userId)
+        MongodbOperationsWithQuery().pushItemWithQuery<Comment>(CollectionsInDb.Comments, query, update)
+    }
+
+    override suspend fun downComment(commentId: String, userId: String) {
+        val query = Document(Fields.Id.title, ObjectId(commentId))
+        val update = Document(Fields.Ups.title, userId)
+        MongodbOperationsWithQuery().pullItemWithQuery<Comment>(CollectionsInDb.Comments, query, update)
     }
 
     override suspend fun getPresenceById(presenceId: String): Presence {

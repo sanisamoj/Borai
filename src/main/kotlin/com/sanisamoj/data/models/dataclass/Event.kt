@@ -17,5 +17,17 @@ data class Event(
     val presences: Int = 0,
     val type: List<String>,
     val status: String = EventStatus.SCHEDULED.name,
+    val eventVotes: List<EventVote> = listOf(),
+    val score: Double = 0.0,
     val createdAt: LocalDateTime = LocalDateTime.now()
-)
+) {
+
+    fun getAverageScore(): Double {
+        return if (eventVotes.isNotEmpty()) {
+            eventVotes.map { it.rating }.average()
+        } else {
+            0.0
+        }
+    }
+
+}

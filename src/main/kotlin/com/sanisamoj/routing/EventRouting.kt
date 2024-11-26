@@ -80,6 +80,15 @@ fun Route.eventRouting() {
                 EventHandlerService().unmaskPresence(accountId, eventId)
                 return@delete call.respond(HttpStatusCode.OK)
             }
+
+            // Responsible for submit event vote
+            post("/vote") {
+                val principal: JWTPrincipal = call.principal()!!
+                val accountId: String = principal.payload.getClaim("id").asString()
+                val eventVote: EventVote = call.receive()
+                EventHandlerService().submitEventVote(accountId, eventVote)
+                return@post call.respond(HttpStatusCode.OK)
+            }
         }
 
         // Responsible for returning events by filters
@@ -194,6 +203,24 @@ fun Route.eventRouting() {
                 val accountId: String = principal.payload.getClaim("id").asString()
                 val commentId: String = call.parameters["id"].toString()
                 EventHandlerService().deleteComment(commentId, accountId)
+                return@delete call.respond(HttpStatusCode.OK)
+            }
+
+            // Responsible for up vote
+            post("/up") {
+                val principal: JWTPrincipal = call.principal()!!
+                val accountId: String = principal.payload.getClaim("id").asString()
+                val commentId: String = call.parameters["commentId"].toString()
+                EventHandlerService().upComment(commentId, accountId)
+                return@post call.respond(HttpStatusCode.OK)
+            }
+
+            // Responsible for down vote
+            delete("/up") {
+                val principal: JWTPrincipal = call.principal()!!
+                val accountId: String = principal.payload.getClaim("id").asString()
+                val commentId: String = call.parameters["commentId"].toString()
+                EventHandlerService().downComment(commentId, accountId)
                 return@delete call.respond(HttpStatusCode.OK)
             }
 

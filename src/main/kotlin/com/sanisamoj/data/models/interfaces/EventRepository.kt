@@ -2,6 +2,7 @@ package com.sanisamoj.data.models.interfaces
 
 import com.sanisamoj.data.models.dataclass.Comment
 import com.sanisamoj.data.models.dataclass.Event
+import com.sanisamoj.data.models.dataclass.EventVote
 import com.sanisamoj.data.models.dataclass.Presence
 import com.sanisamoj.data.models.dataclass.SearchEventFilters
 import com.sanisamoj.data.models.dataclass.SearchEventNearby
@@ -38,4 +39,8 @@ interface EventRepository {
     suspend fun getCommentsFromTheEventCount(eventId: String): Int
     suspend fun getParentCommentsCount(eventId: String, parentId: String): Int
     suspend fun deleteComment(commentId: String)
+
+    suspend fun submitEventVote(eventVote: EventVote)
+    suspend fun upComment(commentId: String, userId: String)
+    suspend fun downComment(commentId: String, userId: String)
 }
