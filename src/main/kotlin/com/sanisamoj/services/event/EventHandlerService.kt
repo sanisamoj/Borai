@@ -40,7 +40,20 @@ class EventHandlerService(
     }
 
     suspend fun getPublicPresencesFromTheEvent(eventId: String, pageNumber: Int = 1, pageSize: Int = 10): GenericResponseWithPagination<MinimalUserResponse> {
-        val presences: List<Presence> = eventRepository.getPublicPresencesFromTheEvent(eventId, pageSize, pageNumber)
+        val presences: List<Presence> = eventRepository.getPresencesFromTheEvent(eventId, pageSize, pageNumber)
+        val eventPresenceResponseList: List<MinimalUserResponse> = presences.map { it -> presenceResponseFactory(it) }
+
+        val allPublicPresenceCount: Int = eventRepository.getPublicPresencesFromTheEventCount(eventId)
+        val paginationResponse: PaginationResponse = paginationMethod(allPublicPresenceCount.toDouble(), pageSize, pageNumber)
+
+        return GenericResponseWithPagination(content = eventPresenceResponseList, paginationResponse = paginationResponse)
+    }
+
+    suspend fun getAllPresencesFromTheEvent(eventId: String, userId: String, pageNumber: Int = 1, pageSize: Int = 10): GenericResponseWithPagination<MinimalUserResponse> {
+        val event: Event = eventRepository.getEventById(eventId)
+        if(event.accountId != userId) throw CustomException(Errors.TheEventHasAnotherOwner)
+
+        val presences: List<Presence> = eventRepository.getPresencesFromTheEvent(eventId, pageSize, pageNumber)
         val eventPresenceResponseList: List<MinimalUserResponse> = presences.map { it -> presenceResponseFactory(it) }
 
         val allPublicPresenceCount: Int = eventRepository.getPublicPresencesFromTheEventCount(eventId)
@@ -50,7 +63,7 @@ class EventHandlerService(
     }
 
     suspend fun getMutualFollowersPresences(eventId: String, userId: String): List<MinimalUserResponse> {
-        val allPresences: List<Presence> = eventRepository.getAllPublicPresencesFromTheEvent(eventId)
+        val allPresences: List<Presence> = eventRepository.getAllPresencesFromTheEvent(eventId)
         val allPresencesInString: List<String> = allPresences.map { it.userId }
         val mutualFollowers: List<String> = repository.getMutualFollowers(userId)
 

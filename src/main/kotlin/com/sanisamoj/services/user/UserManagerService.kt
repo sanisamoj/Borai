@@ -52,6 +52,10 @@ class UserManagerService(
         sendValidationCodeMessageByBot(newPhone, validationCode)
     }
 
+    suspend fun updateAddress(userId: String, address: Address) {
+        databaseRepository.updateUser(userId, OperationField(Fields.Address, address))
+    }
+
     suspend fun validateValidationCodeToUpdatePhone(userId: String, newPhone: String, validationCode: Int): UserResponse {
         isCorrectCode(userId, validationCode)
 

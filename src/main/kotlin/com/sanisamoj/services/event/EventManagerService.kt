@@ -104,8 +104,6 @@ class EventManagerService(
         }
     }
 
-
-
     private suspend fun verifyIfAccountIsOwner(accountId: String, eventId: String) {
         val event: Event = eventRepository.getEventById(eventId)
         if(event.accountId != accountId) throw CustomException(Errors.TheEventHasAnotherOwner)

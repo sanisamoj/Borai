@@ -170,8 +170,8 @@ class DefaultEventRepository: EventRepository {
         return MongodbOperationsWithQuery().findOneWithQuery<Presence>(CollectionsInDb.Presences, query)
     }
 
-    override suspend fun getPublicPresencesFromTheEvent(eventId: String, pageSize: Int,  pageNumber: Int): List<Presence> {
-        val query = Document(Fields.EventId.title, eventId).append(Fields.AccountIsPublic.title, true)
+    override suspend fun getPresencesFromTheEvent(eventId: String, pageSize: Int,  pageNumber: Int, public: Boolean): List<Presence> {
+        val query = Document(Fields.EventId.title, eventId).append(Fields.AccountIsPublic.title, public)
         val sort = Document(Fields.CreatedAt.title, -1)
 
         return MongodbOperationsWithQuery().findAllWithPagingAndFilterWithQuery<Presence>(
@@ -190,7 +190,14 @@ class DefaultEventRepository: EventRepository {
         )
     }
 
-    override suspend fun getAllPublicPresencesFromTheEvent(eventId: String): List<Presence> {
+    override suspend fun getAllPresencesFromTheEventCount(eventId: String): Int {
+        return MongodbOperationsWithQuery().countDocumentsWithFilterWithQuery<Presence>(
+            collectionName = CollectionsInDb.Presences,
+            query = Document(Fields.EventId.title, eventId)
+        )
+    }
+
+    override suspend fun getAllPresencesFromTheEvent(eventId: String): List<Presence> {
         val query = Document(Fields.EventId.title, eventId)
         val sort = Document(Fields.CreatedAt.title, -1)
 
@@ -209,6 +216,16 @@ class DefaultEventRepository: EventRepository {
             collectionName = CollectionsInDb.Presences,
             pageSize = pageSize,
             pageNumber = pageNumber,
+            query = query,
+            sort = sort
+        )
+    }
+
+    override suspend fun getAllPresenceByUser(userId: String): List<Presence> {
+        val query = Document(Fields.UserId.title, userId)
+        val sort = Document(Fields.CreatedAt.title, -1)
+        return MongodbOperationsWithQuery().findAllByFilterWithQuery(
+            collectionName = CollectionsInDb.Presences,
             query = query,
             sort = sort
         )

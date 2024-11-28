@@ -17,6 +17,7 @@ object UserFactory {
             imageProfile = if(user.imageProfile == "") null else user.imageProfile,
             email = user.email,
             phone = user.phone,
+            type = user.type,
             createdAt = user.createdAt.toString(),
         )
     }

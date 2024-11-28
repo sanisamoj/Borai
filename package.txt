@@ -1,3 +1,20 @@
+v0.1.12
+
+ - Verificação do tipo de conta no momento da criação dela.
+
+ - Funcionalidade para alterar o endereço do usuário.
+
+ - Retorno de todas as presenças de um evento para o criador dela.
+
+ - Retorno de contas para o moderador,
+
+ - Possibilidade de um moderador deletar um event.
+
+ - Extensão das permissões da criação de evento.
+  * Uma conta moderadora pode criar eventos.
+
+ - No retorno da conta por login ou sessão, o tipo de conta também será disponibilizado.
+
 v0.1.11
 
  - Implementação de score rate para eventos.

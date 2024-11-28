@@ -60,6 +60,14 @@ class DefaultRepository: DatabaseRepository {
         MongodbOperations().deleteItem<User>(CollectionsInDb.Users, OperationField(Fields.Id, ObjectId(userId)))
     }
 
+    override suspend fun getUsersWithPagination(pageSize: Int, pageNumber: Int): List<User> {
+        return MongodbOperations().findAllWithPaging<User>(CollectionsInDb.Users, pageSize, pageNumber)
+    }
+
+    override suspend fun getUsersCount(): Int {
+        return MongodbOperations().countDocumentsWithoutFilter<User>(CollectionsInDb.Users)
+    }
+
     override suspend fun saveMedia(multipartData: MultiPartData, maxImagesAllowed: Int): List<MediaStorage> {
         val pathToPublicImages = PUBLIC_IMAGES_DIR
         val mediaStorageList: List<MediaStorage> = saveAndReturnMediaStorageList(multipartData, pathToPublicImages, maxImagesAllowed)

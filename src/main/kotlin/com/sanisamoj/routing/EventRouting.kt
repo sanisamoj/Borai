@@ -17,7 +17,7 @@ fun Route.eventRouting() {
 
     route("/event") {
 
-        authenticate("user-jwt") {
+        authenticate("user-jwt", "moderator-jwt") {
 
             // Responsible for creating event
             post {
@@ -36,31 +36,6 @@ fun Route.eventRouting() {
 
                 EventService().deleteEvent(eventId, accountId)
                 return@delete call.respond(HttpStatusCode.OK)
-            }
-
-            // Responsible for returning events by nearby filters
-            get("/nearby") {
-                val longitude = call.request.queryParameters["longitude"]?.toDoubleOrNull()
-                val latitude = call.request.queryParameters["latitude"]?.toDoubleOrNull()
-                val maxDistanceMeters = call.request.queryParameters["maxDistanceMeters"]?.toIntOrNull()
-                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
-                val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
-
-                if (longitude == null || latitude == null || maxDistanceMeters == null) {
-                    throw CustomException(Errors.InvalidParameters)
-                }
-
-                val filters = SearchEventNearby(
-                    longitude = longitude,
-                    latitude = latitude,
-                    maxDistanceMeters = maxDistanceMeters,
-                    page = page,
-                    size = size
-                )
-
-                val eventList: GenericResponseWithPagination<EventResponse> = EventService().findEventsNearby(filters)
-
-                return@get call.respond(HttpStatusCode.OK, eventList)
             }
 
             // Responsible for mark presence
@@ -91,8 +66,33 @@ fun Route.eventRouting() {
             }
         }
 
+        // Responsible for returning events by nearby filters
+        get("/nearby") {
+            val longitude = call.request.queryParameters["longitude"]?.toDoubleOrNull()
+            val latitude = call.request.queryParameters["latitude"]?.toDoubleOrNull()
+            val maxDistanceMeters = call.request.queryParameters["maxDistanceMeters"]?.toIntOrNull()
+            val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+            val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
+
+            if (longitude == null || latitude == null || maxDistanceMeters == null) {
+                throw CustomException(Errors.InvalidParameters)
+            }
+
+            val filters = SearchEventNearby(
+                longitude = longitude,
+                latitude = latitude,
+                maxDistanceMeters = maxDistanceMeters,
+                page = page,
+                size = size
+            )
+
+            val eventList: GenericResponseWithPagination<EventResponse> = EventService().findEventsNearby(filters)
+
+            return@get call.respond(HttpStatusCode.OK, eventList)
+        }
+
         // Responsible for returning events by filters
-        get {
+        get("/search") {
             val id = call.request.queryParameters["id"]
 
             if(id != null) {
@@ -167,7 +167,7 @@ fun Route.eventRouting() {
 
         }
 
-        authenticate("user-jwt") {
+        authenticate("user-jwt", "moderator-jwt") {
 
             // Responsible for returning mutual followers presence
             get("/mutual") {
@@ -179,13 +179,32 @@ fun Route.eventRouting() {
                 return@get call.respond(minimalUserResponseList)
             }
 
+            // Responsible for returning all public presences from the event
+            get("/all") {
+                val principal: JWTPrincipal = call.principal()!!
+                val accountId: String = principal.payload.getClaim("id").asString()
+                val id = call.request.queryParameters["eventId"].toString()
+                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+                val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
+
+                val allPresenceFromTheEvent: GenericResponseWithPagination<MinimalUserResponse> = EventHandlerService().getAllPresencesFromTheEvent(
+                    eventId = id,
+                    userId = accountId,
+                    pageNumber = page,
+                    pageSize = size
+                )
+
+                return@get call.respond(allPresenceFromTheEvent)
+
+            }
+
         }
 
     }
 
     route("/comment") {
 
-        authenticate("user-jwt") {
+        authenticate("user-jwt", "moderator-jwt") {
 
             // Responsible for adding comment
             post {

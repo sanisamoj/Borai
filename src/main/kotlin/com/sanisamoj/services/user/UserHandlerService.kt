@@ -83,6 +83,7 @@ class UserHandlerService(
     private suspend fun minimalEventResponseFactory(eventId: String): MinimalEventResponse {
         val event: Event = eventRepository.getEventById(eventId)
         return MinimalEventResponse(
+            id = eventId,
             name = event.name,
             description = event.description,
             image = event.image,

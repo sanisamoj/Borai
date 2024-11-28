@@ -22,10 +22,12 @@ interface EventRepository {
     suspend fun updateEvent(eventId: String, update: OperationField): Event
 
     suspend fun getPresenceByEventAndUser(eventId: String, userId: String): Presence?
-    suspend fun getPublicPresencesFromTheEvent(eventId: String, pageSize: Int = 10, pageNumber: Int = 1): List<Presence>
+    suspend fun getPresencesFromTheEvent(eventId: String, pageSize: Int = 10, pageNumber: Int = 1, public: Boolean = true): List<Presence>
     suspend fun getPublicPresencesFromTheEventCount(eventId: String): Int
-    suspend fun getAllPublicPresencesFromTheEvent(eventId: String): List<Presence>
+    suspend fun getAllPresencesFromTheEventCount(eventId: String): Int
+    suspend fun getAllPresencesFromTheEvent(eventId: String): List<Presence>
     suspend fun getPresenceByUser(userId: String, pageSize: Int = 10, pageNumber: Int = 1): List<Presence>
+    suspend fun getAllPresenceByUser(userId: String): List<Presence>
     suspend fun getPresenceByUserCount(userId: String): Int
     suspend fun getPresenceById(presenceId: String): Presence
 

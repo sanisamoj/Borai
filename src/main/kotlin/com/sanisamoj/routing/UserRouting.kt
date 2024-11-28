@@ -39,9 +39,9 @@ fun Route.userRouting() {
 
         }
 
-        rateLimit(RateLimitName("validation")) {
+        authenticate("user-jwt", "moderator-jwt") {
 
-            authenticate("user-jwt") {
+            rateLimit(RateLimitName("validation")) {
 
                 // Responsible for updating user profile
                 put("/profile") {
@@ -62,6 +62,10 @@ fun Route.userRouting() {
                         }
                         putUserProfile.bio != null -> {
                             userManagerService.updateBio(userId, putUserProfile.bio)
+                            return@put call.respond(HttpStatusCode.OK)
+                        }
+                        putUserProfile.address != null -> {
+                            userManagerService.updateAddress(userId, putUserProfile.address)
                             return@put call.respond(HttpStatusCode.OK)
                         }
                         else -> {
@@ -99,9 +103,6 @@ fun Route.userRouting() {
                     return@put call.respond(userResponse)
                 }
             }
-        }
-
-        authenticate("user-jwt") {
 
             // Responsible for sending a request to follow
             post("/follow") {
@@ -383,9 +384,9 @@ fun Route.userRouting() {
             }
         }
 
-        rateLimit(RateLimitName("lightweight")) {
+        authenticate("user-jwt", "moderator-jwt") {
 
-            authenticate("user-jwt") {
+            rateLimit(RateLimitName("lightweight")) {
 
                 // Responsible for session
                 post("/session") {
@@ -403,7 +404,9 @@ fun Route.userRouting() {
                     UserAuthenticationService().signOut(accountId, sessionId)
                     return@delete call.respond(HttpStatusCode.OK)
                 }
+
             }
+
         }
     }
 }

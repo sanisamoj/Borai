@@ -1,6 +1,6 @@
 # Borai
 
-Este é um sistema de gerenciamento e armazenamento de eventos, que distingue dois tipos de contas: **Participant** e **Promoter**. 
+O Borai é um sistema de gerenciamento e armazenamento de eventos, que distingue dois tipos de contas: **Participant** e **Promoter**. 
 As contas **Promoter** têm a capacidade de criar e gerenciar eventos, além de desfrutarem de vantagens em termos de visibilidade, 
 o que proporciona maior alcance aos seus eventos. Por outro lado, as contas **Participant** podem marcar presença nos eventos, interagir com comentários e 
 avaliações, e também avaliar os eventos e seus promotores. Embora as contas *Participant* possam criar eventos, elas não têm o mesmo nível de visibilidade que as contas *Promoter*, 

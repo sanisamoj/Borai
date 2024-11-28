@@ -39,7 +39,7 @@ class EventService(
         val event: Event = eventRepository.getEventById(eventId)
         if(event.accountId != accountId) throw CustomException(Errors.TheEventHasAnotherOwner)
 
-        val allPresences: List<Presence> = eventRepository.getAllPublicPresencesFromTheEvent(eventId)
+        val allPresences: List<Presence> = eventRepository.getAllPresencesFromTheEvent(eventId)
         allPresences.forEach { presence ->
             try {
                 eventRepository.unmarkPresence(presence.userId, eventId)

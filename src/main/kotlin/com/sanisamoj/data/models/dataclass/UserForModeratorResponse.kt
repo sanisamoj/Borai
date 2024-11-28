@@ -3,7 +3,7 @@ package com.sanisamoj.data.models.dataclass
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserResponse(
+data class UserForModeratorResponse(
     val id: String,
     val nick: String,
     val bio: String? = null,
@@ -11,6 +11,8 @@ data class UserResponse(
     val imageProfile: String? = null,
     val email: String,
     val phone: String,
-    val type: String,
+    val address: Address? = null,
+    val events: List<MinimalEventResponse>,
+    val presences: List<MinimalEventResponse>,
     val createdAt: String
 )

@@ -14,6 +14,8 @@ interface DatabaseRepository {
     suspend fun getUserByPhone(phone: String): User?
     suspend fun updateUser(userId: String, update: OperationField): User
     suspend fun deleteUser(userId: String)
+    suspend fun getUsersWithPagination(pageSize: Int = 10, pageNumber: Int = 1): List<User>
+    suspend fun getUsersCount(): Int
 
     suspend fun saveMedia(multipartData: MultiPartData, maxImagesAllowed: Int): List<MediaStorage>
     fun getMedia(name: String): File

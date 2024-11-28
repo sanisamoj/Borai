@@ -8,6 +8,7 @@ import com.sanisamoj.data.models.dataclass.UserResponse
 import com.sanisamoj.data.models.enums.AccountType
 import com.sanisamoj.data.models.enums.Errors
 import com.sanisamoj.data.models.interfaces.DatabaseRepository
+import com.sanisamoj.utils.analyzers.isInEnum
 
 class UserService(
     private val databaseRepository: DatabaseRepository = GlobalContext.getDatabaseRepository()
@@ -44,5 +45,8 @@ class UserService(
                 throw IllegalArgumentException(Errors.DataIsMissing.description)
             }
         }
+
+        if(userCreateRequest.type == AccountType.PROMOTER.name) throw CustomException(Errors.InvalidParameters)
+        if(!userCreateRequest.type.isInEnum<AccountType>()) throw CustomException(Errors.InvalidParameters)
     }
 }

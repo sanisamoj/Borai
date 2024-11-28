@@ -14,6 +14,7 @@ data class User(
     val phone: String,
     val password: String,
     val type: String,
+    val address: Address? = null,
     val accountStatus: String,
     val public: Boolean = true,
     val mediaStorage: List<MediaStorage> = listOf(),
