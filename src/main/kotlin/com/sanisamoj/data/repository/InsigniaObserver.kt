@@ -107,15 +107,23 @@ object InsigniaObserver: InsigniaRepository {
     override suspend fun addVisibleInsignia(userId: String, insigniaId: String) {
         val user = getUserById(userId)
 
+        // Find the insignia in the user's insignias list by ID
         val insigniaToAdd: Insignia = user.insignias?.find { it.id == ObjectId(insigniaId) }
             ?: throw CustomException(Errors.InsigniaNotFoundInUserList)
 
-        // Checks if the limit of 7 badges has already been reached
+        // Check if the insignia is already in the visible insignias list
         val visibleInsignias = user.visibleInsignias ?: emptyList()
-        if (visibleInsignias.size >= 7) throw CustomException(Errors.TheLimiteVisibleInsigniaReached)
+        if (visibleInsignias.any { it.id == ObjectId(insigniaId) }) {
+            throw CustomException(Errors.InsigniaAlreadyAdded)
+        }
 
+        // Check if the limit of 7 visible insignias has been reached
+        if (visibleInsignias.size >= 7) {
+            throw CustomException(Errors.TheLimiteVisibleInsigniaReached)
+        }
+
+        // Update the list with the new insignia
         val updatedVisibleInsignias: List<Insignia> = visibleInsignias + insigniaToAdd
-
         val update = Document("\$set", Document(Fields.VisibleInsignias.title, updatedVisibleInsignias))
 
         MongodbOperationsWithQuery().updateWithQuery<User>(
@@ -124,8 +132,8 @@ object InsigniaObserver: InsigniaRepository {
             update = update,
             options = UpdateOptions()
         )
-
     }
+
 
     override suspend fun removeVisibleInsignia(userId: String, insigniaId: String) {
         val user = getUserById(userId)

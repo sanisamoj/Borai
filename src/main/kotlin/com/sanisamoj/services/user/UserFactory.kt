@@ -5,6 +5,7 @@ import com.sanisamoj.data.models.dataclass.User
 import com.sanisamoj.data.models.dataclass.UserCreateRequest
 import com.sanisamoj.data.models.dataclass.UserResponse
 import com.sanisamoj.data.models.enums.AccountStatus
+import com.sanisamoj.services.insignia.InsigniaFactory
 import org.mindrot.jbcrypt.BCrypt
 
 object UserFactory {
@@ -18,6 +19,8 @@ object UserFactory {
             email = user.email,
             phone = user.phone,
             type = user.type,
+            insignias = user.insignias?.map { InsigniaFactory.insigniaResponseFactory(it) },
+            visibleInsignias = user.visibleInsignias?.map { InsigniaFactory.insigniaResponseFactory(it) },
             createdAt = user.createdAt.toString(),
         )
     }

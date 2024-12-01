@@ -93,7 +93,7 @@ fun Route.profileRouting() {
             get("/other-events") {
                 val principal = call.principal<JWTPrincipal>()!!
                 val accountId = principal.payload.getClaim("id").asString()
-                val profileId = call.request.queryParameters["id"].toString()
+                val profileId = call.request.queryParameters["profileId"].toString()
                 val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
                 val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
 
@@ -148,7 +148,7 @@ fun Route.profileRouting() {
             put("/visible") {
                 val principal: JWTPrincipal = call.principal<JWTPrincipal>()!!
                 val accountId: String = principal.payload.getClaim("id").asString()
-                val insigniaId: String = call.request.queryParameters["insigniaId"].toString()
+                val insigniaId: String = call.parameters["insigniaId"].toString()
                 InsigniaObserver.addVisibleInsignia(accountId, insigniaId)
                 return@put call.respond(HttpStatusCode.OK)
             }

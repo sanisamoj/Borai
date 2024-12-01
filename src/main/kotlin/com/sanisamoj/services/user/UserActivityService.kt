@@ -5,7 +5,6 @@ import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.enums.Errors
 import com.sanisamoj.data.models.interfaces.DatabaseRepository
 import com.sanisamoj.data.models.interfaces.EventRepository
-import com.sanisamoj.services.event.EventService
 import com.sanisamoj.services.insignia.InsigniaFactory
 import com.sanisamoj.utils.pagination.PaginationResponse
 import com.sanisamoj.utils.pagination.paginationMethod
@@ -53,18 +52,29 @@ class UserActivityService(
         return UserHandlerService().getPresenceByUser(profileId, size, page)
     }
 
-    suspend fun getEventsFromProfile(userId: String, profileId: String, pageSize: Int, pageNumber: Int): GenericResponseWithPagination<EventResponse> {
+    suspend fun getEventsFromProfile(userId: String, profileId: String, pageSize: Int, pageNumber: Int): GenericResponseWithPagination<MinimalEventResponse> {
         val mutual: List<String> = repository.getMutualFollowers(profileId)
         val user: User = repository.getUserById(profileId)
         if(!mutual.contains(userId) && !user.public) throw CustomException(Errors.ProfileIsPrivate)
 
         val events: List<Event> = eventRepository.getAllEventFromAccountWithPagination(profileId, pageNumber, pageSize)
-        val eventService = EventService(eventRepository, repository)
-        val eventResponseList: List<EventResponse> = events.map { eventService.eventResponseFactory(it) }
+        val eventResponseList: List<MinimalEventResponse> = events.map { minimalEventResponseFactory(it) }
 
         val eventsCount: Int = eventRepository.getAllEventFromAccountCount(profileId)
         val paginationResponse: PaginationResponse = paginationMethod(eventsCount.toDouble(), pageSize, pageNumber)
 
         return GenericResponseWithPagination(eventResponseList, paginationResponse)
+    }
+
+    private fun minimalEventResponseFactory(event: Event): MinimalEventResponse {
+        return MinimalEventResponse(
+            id = event.id.toString(),
+            name = event.name,
+            description = event.description,
+            image = event.image,
+            presences = event.presences,
+            type = event.type,
+            date = event.date.toString()
+        )
     }
 }

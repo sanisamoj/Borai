@@ -7,7 +7,7 @@ import com.sanisamoj.data.models.enums.ActionMessages
 import com.sanisamoj.data.models.enums.Errors
 import com.sanisamoj.data.models.enums.Infos
 import com.sanisamoj.utils.converters.BytesConverter
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 
 fun errorResponse(exception: CustomException): Pair<HttpStatusCode, ErrorResponse> {
     val response = when (exception.error) {
@@ -109,6 +109,52 @@ fun errorResponse(exception: CustomException): Pair<HttpStatusCode, ErrorRespons
 
         Errors.EventNotFound -> {
             HttpStatusCode.NotFound to ErrorResponse(Errors.EventNotFound.description)
+        }
+
+        Errors.ImageNotFoundInOtherImages -> {
+            HttpStatusCode.NotFound to ErrorResponse(Errors.ImageNotFoundInOtherImages.description)
+        }
+
+        Errors.LimitOnTheNumberOfImageReached -> {
+            HttpStatusCode.UnprocessableEntity to ErrorResponse(Errors.LimitOnTheNumberOfImageReached.description)
+        }
+
+        Errors.InsigniaNotFoundInUserList -> {
+            HttpStatusCode.NotFound to ErrorResponse(Errors.InsigniaNotFoundInUserList.description)
+        }
+
+        Errors.MaxRetriesReached -> {
+            HttpStatusCode.UnprocessableEntity to ErrorResponse(Errors.MaxRetriesReached.description)
+        }
+
+        Errors.PresenceNotFound -> {
+            HttpStatusCode.NotFound to ErrorResponse(Errors.PresenceNotFound.description)
+        }
+
+        Errors.CommentNotFound -> {
+            HttpStatusCode.NotFound to ErrorResponse(Errors.CommentNotFound.description)
+        }
+
+        Errors.MediaNotExist -> {
+            HttpStatusCode.NotFound to ErrorResponse(Errors.MediaNotExist.description)
+        }
+
+        Errors.InsigniaAlreadyAdded -> {
+            HttpStatusCode.Conflict to ErrorResponse(Errors.InsigniaAlreadyAdded.description)
+        }
+
+        Errors.UnsupportedMediaType -> {
+            HttpStatusCode.UnsupportedMediaType to ErrorResponse(
+                error = Errors.UnsupportedMediaType.description,
+                details = ActionMessages.MimeTypesAllowed.description
+            )
+        }
+
+        Errors.TheLimiteVisibleInsigniaReached -> {
+            HttpStatusCode.UnprocessableEntity to ErrorResponse(
+                error = Errors.TheLimiteVisibleInsigniaReached.description,
+                details = Infos.VisibleLimitInsignias.description
+            )
         }
 
         Errors.InactiveAccount -> {

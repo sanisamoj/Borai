@@ -1,3 +1,9 @@
+v0.1.14
+
+ - Ampliação das respostas de erros.
+
+ - Correções.
+
 v0.1.13
 
  - Implementação da estrutura de insígnias.

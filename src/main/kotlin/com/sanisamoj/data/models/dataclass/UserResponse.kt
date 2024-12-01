@@ -12,5 +12,7 @@ data class UserResponse(
     val email: String,
     val phone: String,
     val type: String,
+    val insignias: List<InsigniaResponse>?,
+    val visibleInsignias: List<InsigniaResponse>?,
     val createdAt: String
 )

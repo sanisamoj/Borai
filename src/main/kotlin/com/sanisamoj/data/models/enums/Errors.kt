@@ -23,6 +23,7 @@ enum class Errors(val description: String) {
     ExpiredValidationCode("Expired Validation Code!"),
     InvalidRating("Rating must be between 1 and 5."),
     UnsupportedMediaType("Unsupported media type!"),
+    InsigniaAlreadyAdded("Insignia already added!"),
     InternalServerError("Internal Server Error!"),
     BotTokenNotUpdated("Bot token not updated!"),
     LogTokenNotUpdated("Log token not updated!"),
