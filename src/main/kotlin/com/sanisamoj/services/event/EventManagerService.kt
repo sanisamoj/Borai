@@ -1,11 +1,7 @@
 package com.sanisamoj.services.event
 
 import com.sanisamoj.config.GlobalContext
-import com.sanisamoj.data.models.dataclass.Address
-import com.sanisamoj.data.models.dataclass.CustomException
-import com.sanisamoj.data.models.dataclass.Event
-import com.sanisamoj.data.models.dataclass.EventResponse
-import com.sanisamoj.data.models.dataclass.SavedMediaResponse
+import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.enums.Errors
 import com.sanisamoj.data.models.interfaces.DatabaseRepository
 import com.sanisamoj.data.models.interfaces.EventRepository
@@ -13,7 +9,7 @@ import com.sanisamoj.database.mongodb.Fields
 import com.sanisamoj.database.mongodb.OperationField
 import com.sanisamoj.services.media.MediaService
 import com.sanisamoj.utils.converters.converterStringToLocalDateTime
-import io.ktor.http.content.MultiPartData
+import io.ktor.http.content.*
 
 class EventManagerService(
     private val eventRepository: EventRepository = GlobalContext.getEventRepository(),

@@ -198,4 +198,52 @@ class MongodbOperationsWithQuery {
             false
         }
     }
+
+    suspend inline fun <reified T : Any> incrementValueWithQuery(
+        collectionName: CollectionsInDb,
+        query: Document,
+        field: String,
+        incrementValue: Number
+    ): Boolean {
+        val database = MongoDatabase.getDatabase()
+        val collection = database.getCollection<T>(collectionName.name)
+        return try {
+            val update = Document("\$inc", Document(field, incrementValue))
+            val result = collection.updateOne(query, update)
+            result.modifiedCount > 0
+        } catch (e: Exception) {
+            println("Error executing incrementValueWithQuery: ${e.message}")
+            false
+        }
+    }
+
+    suspend inline fun <reified T : Any> decrementValueWithQuery(
+        collectionName: CollectionsInDb,
+        query: Document,
+        field: String,
+        decrementValue: Number
+    ): Boolean {
+        val database = MongoDatabase.getDatabase()
+        val collection = database.getCollection<T>(collectionName.name)
+        return try {
+            val update = Document("\$inc", Document(field, -decrementValue.toDouble()))
+            val result = collection.updateOne(query, update)
+            result.modifiedCount > 0
+        } catch (e: Exception) {
+            println("Error executing decrementValueWithQuery: ${e.message}")
+            false
+        }
+    }
+
+    suspend inline fun <reified T : Any> updateWithQuery(
+        collectionName: CollectionsInDb,
+        query: Document,
+        update: Document,
+        options: UpdateOptions
+    ) {
+        val database = MongoDatabase.getDatabase()
+        val collection = database.getCollection<T>(collectionName.name)
+        collection.updateOne(query, update, options)
+    }
+
 }

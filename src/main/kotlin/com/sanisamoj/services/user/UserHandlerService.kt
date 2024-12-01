@@ -1,12 +1,7 @@
 package com.sanisamoj.services.user
 
 import com.sanisamoj.config.GlobalContext
-import com.sanisamoj.data.models.dataclass.Event
-import com.sanisamoj.data.models.dataclass.GenericResponseWithPagination
-import com.sanisamoj.data.models.dataclass.MinimalEventResponse
-import com.sanisamoj.data.models.dataclass.MinimalUserResponse
-import com.sanisamoj.data.models.dataclass.Presence
-import com.sanisamoj.data.models.dataclass.User
+import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.interfaces.DatabaseRepository
 import com.sanisamoj.data.models.interfaces.EventRepository
 import com.sanisamoj.utils.pagination.PaginationResponse

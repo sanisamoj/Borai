@@ -103,6 +103,13 @@ fun errorResponse(exception: CustomException): Pair<HttpStatusCode, ErrorRespons
             HttpStatusCode.Conflict to ErrorResponse(Errors.UserHasAlreadyUpvoted.description)
         }
 
+        Errors.NotFound -> {
+            HttpStatusCode.NotFound to ErrorResponse(Errors.NotFound.description)
+        }
+
+        Errors.EventNotFound -> {
+            HttpStatusCode.NotFound to ErrorResponse(Errors.EventNotFound.description)
+        }
 
         Errors.InactiveAccount -> {
             HttpStatusCode.Forbidden to ErrorResponse(

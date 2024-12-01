@@ -4,8 +4,10 @@ import com.sanisamoj.config.GlobalContext
 import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.enums.Errors
 import com.sanisamoj.data.models.enums.EventStatus
+import com.sanisamoj.data.models.enums.InsigniaCriteriaType
 import com.sanisamoj.data.models.interfaces.DatabaseRepository
 import com.sanisamoj.data.models.interfaces.EventRepository
+import com.sanisamoj.data.models.interfaces.InsigniaRepository
 import com.sanisamoj.database.mongodb.Fields
 import com.sanisamoj.database.mongodb.OperationField
 import com.sanisamoj.utils.pagination.PaginationResponse
@@ -14,6 +16,7 @@ import com.sanisamoj.utils.pagination.paginationMethod
 class EventHandlerService(
     private val eventRepository: EventRepository = GlobalContext.getEventRepository(),
     private val repository: DatabaseRepository = GlobalContext.getDatabaseRepository(),
+    private val insigniaObserver: InsigniaRepository = GlobalContext.getInsigniaObserver()
 ) {
 
     suspend fun markPresence(userId: String, eventId: String) {
@@ -31,12 +34,19 @@ class EventHandlerService(
         )
 
         eventRepository.markPresence(presence)
+        insigniaObserver.addPoints(userId, InsigniaCriteriaType.PresencesFromTheUser, 1.0)
+
+        val event: Event = eventRepository.getEventById(eventId)
+        insigniaObserver.addPoints(event.accountId, InsigniaCriteriaType.PresencesEvents, 1.0)
     }
 
-    suspend fun unmaskPresence(userId: String, eventId: String) {
-        val presenceAlreadyExist: Presence? = eventRepository.getPresenceByEventAndUser(eventId, userId)
-        if(presenceAlreadyExist == null) throw CustomException(Errors.UnableToComplete)
+    suspend fun unmarkPresence(userId: String, eventId: String) {
+        eventRepository.getPresenceByEventAndUser(eventId, userId)  ?: throw CustomException(Errors.UnableToComplete)
         eventRepository.unmarkPresence(userId, eventId)
+        insigniaObserver.removePoints(userId, InsigniaCriteriaType.PresencesFromTheUser, 1.0)
+
+        val event: Event = eventRepository.getEventById(eventId)
+        insigniaObserver.removePoints(event.accountId, InsigniaCriteriaType.PresencesEvents, 1.0)
     }
 
     suspend fun getPublicPresencesFromTheEvent(eventId: String, pageNumber: Int = 1, pageSize: Int = 10): GenericResponseWithPagination<MinimalUserResponse> {
@@ -86,6 +96,7 @@ class EventHandlerService(
         commentRequest.parentId?.let {
             val comment: Comment = eventRepository.getCommentById(it)
             if(comment.parentId != null) throw CustomException(Errors.CommentsCannotExceedLevelOneResponses)
+            insigniaObserver.addPoints(comment.userId, InsigniaCriteriaType.AnswerComments, 1.0)
         }
 
         val comment = Comment(
@@ -98,6 +109,11 @@ class EventHandlerService(
         )
 
         eventRepository.addComment(comment)
+        insigniaObserver.addPoints(userId, InsigniaCriteriaType.Comments, 1.0)
+
+        val event: Event = eventRepository.getEventById(commentRequest.eventId)
+        insigniaObserver.addPoints(event.accountId, InsigniaCriteriaType.CommentsEvents, 1.0)
+
         return commentResponseFactory(comment)
     }
 
@@ -105,6 +121,11 @@ class EventHandlerService(
         val comment: Comment = eventRepository.getCommentById(commentId)
         if(comment.userId != userId) throw CustomException(Errors.UnableToComplete)
         eventRepository.deleteComment(commentId)
+        insigniaObserver.removePoints(userId, InsigniaCriteriaType.Comments, 1.0)
+        comment.parentId?.let { insigniaObserver.removePoints(comment.userId, InsigniaCriteriaType.AnswerComments, 1.0) }
+
+        val event: Event = eventRepository.getEventById(comment.eventId)
+        insigniaObserver.addPoints(event.accountId, InsigniaCriteriaType.CommentsEvents, 1.0)
     }
 
     suspend fun getCommentsFromTheEvent(eventId: String, pageSize: Int, pageNumber: Int): GenericResponseWithPagination<CommentResponse> {
@@ -196,6 +217,7 @@ class EventHandlerService(
         if(userIdAlreadyUpVoted != null) throw CustomException(Errors.UserHasAlreadyUpvoted)
 
         eventRepository.upComment(commentId, userId)
+        insigniaObserver.addPoints(comment.userId, InsigniaCriteriaType.UpsComments, 1.0)
     }
 
     suspend fun downComment(commentId: String, userId: String) {
@@ -204,6 +226,7 @@ class EventHandlerService(
         if(userIdAlreadyUpVoted == null) throw CustomException(Errors.CannotRemoveUpIfNotMade)
 
         eventRepository.downComment(commentId, userId)
+        insigniaObserver.removePoints(comment.userId, InsigniaCriteriaType.UpsComments, 1.0)
     }
 
 }

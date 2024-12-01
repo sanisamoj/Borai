@@ -19,5 +19,7 @@ data class User(
     val public: Boolean = true,
     val mediaStorage: List<MediaStorage> = listOf(),
     val validationCode: Int? = null,
+    val insignias: List<Insignia>? = null,
+    val visibleInsignias: List<Insignia>? = null,
     val createdAt: LocalDateTime = LocalDateTime.now()
 )

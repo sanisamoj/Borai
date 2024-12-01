@@ -32,6 +32,7 @@ class UserService(
 
     private fun verifyUserCreateRequest(userCreateRequest: UserCreateRequest) {
         if(userCreateRequest.type == AccountType.MODERATOR.name) throw CustomException(Errors.UnableToComplete)
+        if(userCreateRequest.phone.any { it.isLetter() }) throw CustomException(Errors.UnableToComplete)
 
         val validations = mapOf(
             "Name" to userCreateRequest.username,

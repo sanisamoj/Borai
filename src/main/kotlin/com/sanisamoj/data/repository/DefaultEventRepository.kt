@@ -97,12 +97,12 @@ class DefaultEventRepository: EventRepository {
         )
     }
 
-    override suspend fun getEventsWithFilterCount(searchEventFilters: SearchEventNearby): Int {
+    override suspend fun getEventsWithFilterCount(filters: SearchEventNearby): Int {
         val query = Document("address.geoCoordinates.coordinates", Document("\$near", Document()
             .append("\$geometry", Document()
                 .append("type", "Point")
-                .append("coordinates", listOf(searchEventFilters.longitude, searchEventFilters.latitude)))
-            .append("\$maxDistance", searchEventFilters.maxDistanceMeters)
+                .append("coordinates", listOf(filters.longitude, filters.latitude)))
+            .append("\$maxDistance", filters.maxDistanceMeters)
         ))
 
         return MongodbOperationsWithQuery().countDocumentsWithFilterWithQuery<Event>(
@@ -119,23 +119,36 @@ class DefaultEventRepository: EventRepository {
         ) ?: throw CustomException(Errors.EventNotFound)
     }
 
-    private fun searchEventFiltersDocumentBuilder(filters: SearchEventFilters): Document {
+    private suspend fun searchEventFiltersDocumentBuilder(filters: SearchEventFilters): Document {
         val query = Document()
+        var hasFilters = false
 
         filters.name?.let {
+            hasFilters = true
             query.append("name", Document("\$regex", it).append("\$options", "i"))
         }
 
+        filters.nick?.let {
+            val user: User = MongodbOperations().findOne<User>(CollectionsInDb.Users, OperationField(Fields.Nick, filters.nick))
+                ?: throw CustomException(Errors.UserNotFound)
+
+            hasFilters = true
+            query.append("accountId", user.id.toString())
+        }
+
         filters.status?.let {
+            hasFilters = true
             query.append("status", it)
         }
 
         filters.type?.let {
+            hasFilters = true
             query.append("type", Document("\$in", it))
         }
 
         filters.date?.let { startDate ->
             val endDate = filters.endDate ?: startDate.toLocalDate().atTime(23, 59, 59)
+            hasFilters = true
             query.append(
                 "date",
                 Document("\$gte", startDate).append("\$lte", endDate)
@@ -145,21 +158,29 @@ class DefaultEventRepository: EventRepository {
         val addressFilters = mutableListOf<Document>()
         filters.address?.let { address ->
             address.street?.let { street ->
+                hasFilters = true
                 addressFilters.add(Document("address.street", Document("\$regex", street).append("\$options", "i")))
             }
             address.neighborhood?.let { neighborhood ->
+                hasFilters = true
                 addressFilters.add(Document("address.neighborhood", Document("\$regex", neighborhood).append("\$options", "i")))
             }
             address.city?.let { city ->
+                hasFilters = true
                 addressFilters.add(Document("address.city", Document("\$regex", city).append("\$options", "i")))
             }
             address.uf?.let { uf ->
+                hasFilters = true
                 addressFilters.add(Document("address.uf", Document("\$regex", uf).append("\$options", "i")))
             }
         }
 
         if (addressFilters.isNotEmpty()) {
             query.append("\$and", addressFilters)
+        }
+
+        if (!hasFilters) {
+            throw CustomException(Errors.InvalidParameters)
         }
 
         return query

@@ -4,12 +4,10 @@ import com.sanisamoj.config.GlobalContext
 import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.enums.Errors
 import com.sanisamoj.data.models.enums.EventStatus
-import com.sanisamoj.services.event.EventHandlerService
 import com.sanisamoj.services.event.EventManagerService
 import com.sanisamoj.services.followers.FollowerService
-import com.sanisamoj.services.user.UserActivityService
+import com.sanisamoj.services.media.MediaService
 import com.sanisamoj.services.user.UserAuthenticationService
-import com.sanisamoj.services.user.UserHandlerService
 import com.sanisamoj.services.user.UserManagerService
 import com.sanisamoj.services.user.UserService
 import com.sanisamoj.utils.analyzers.isInEnum
@@ -260,88 +258,18 @@ fun Route.userRouting() {
                 return@get call.respond(mediaStorageList)
             }
 
-        }
-
-    }
-
-    route("/profile") {
-
-        authenticate("user-jwt") {
-
-            // Responsible for returning a profile from the user
-            get {
-                val profileId = call.parameters["id"].toString()
-                val profileResponse: ProfileResponse = UserActivityService().getProfileById(profileId)
-                return@get call.respond(profileResponse)
-            }
-
-            // Responsible for returning events in which the user was present
-            get("/presences") {
+            // Responsible for add media to the collections
+            post("/storage") {
                 val principal = call.principal<JWTPrincipal>()!!
                 val accountId = principal.payload.getClaim("id").asString()
-                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
-                val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
 
-                val minimalEventResponseList = UserHandlerService().getPresenceByUser(accountId, size, page)
-                return@get call.respond(minimalEventResponseList)
-            }
+                val multipartData: MultiPartData = call.receiveMultipart()
+                val requestSize: String? = call.request.headers[HttpHeaders.ContentLength]
+                val requestSizeInMb: Double = BytesConverter(requestSize!!.toLong()).getInMegabyte()
+                if (requestSizeInMb > GlobalContext.MAX_HEADERS_SIZE) throw CustomException(Errors.TheLimitMaxImageAllowed)
 
-            // Responsible for returning followers
-            get("/followers") {
-                val principal = call.principal<JWTPrincipal>()!!
-                val accountId = principal.payload.getClaim("id").asString()
-                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
-                val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
-
-                val minimalUserResponseList = UserHandlerService().getFollowers(accountId, size, page)
-                return@get call.respond(minimalUserResponseList)
-            }
-
-            // Responsible for returning following
-            get("/following") {
-                val principal = call.principal<JWTPrincipal>()!!
-                val accountId = principal.payload.getClaim("id").asString()
-                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
-                val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
-
-                val minimalUserResponseList = UserHandlerService().getFollowing(accountId, size, page)
-                return@get call.respond(minimalUserResponseList)
-            }
-
-            // Responsible for returning presences from profile
-            get("/other-presences") {
-                val principal = call.principal<JWTPrincipal>()!!
-                val accountId = principal.payload.getClaim("id").asString()
-                val profileId = call.request.queryParameters["id"].toString()
-                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
-                val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
-
-                val minimalUserResponseList = UserActivityService().getPresencesFromProfile(
-                    userId = accountId,
-                    profileId = profileId,
-                    page = page,
-                    size = size
-                )
-
-                return@get call.respond(minimalUserResponseList)
-            }
-
-            //Responsible for returning own event
-            get("/events") {
-                val principal = call.principal<JWTPrincipal>()!!
-                val accountId = principal.payload.getClaim("id").asString()
-                val all: Boolean = call.request.queryParameters["all"] == "true"
-                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
-                val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
-
-                if(all) {
-                    val eventResponseList:  List<EventResponse> = EventHandlerService().getAllEventsFromAccount(accountId)
-                    return@get call.respond(eventResponseList)
-                } else {
-                    val eventResponseListWithPagination = EventHandlerService().getEventsFromAccount(accountId, size, page)
-                    return@get call.respond(eventResponseListWithPagination)
-                }
-
+                val mediaStorageList: List<MediaStorage> = UserManagerService().addMediaToTheMediaStorage(multipartData, accountId)
+                return@post call.respond(mediaStorageList)
             }
 
         }
@@ -407,6 +335,17 @@ fun Route.userRouting() {
 
             }
 
+        }
+    }
+
+    route("/media") {
+
+        // Responsible for returning an image
+        get("/{name?}") {
+            val mediaName: String = call.parameters["name"].toString()
+            val file = MediaService().getMedia(mediaName)
+            if (file.exists()) return@get call.respondFile(file)
+            else return@get call.respond(HttpStatusCode.NotFound)
         }
     }
 }

@@ -34,7 +34,9 @@ Esse projeto é, no fundo, um empurrãozinho gentil para que os tímidos e os di
 
     - **Marcar presença:** Confirmar participação nos eventos disponíveis.
     - **Visualizar interações de outros usuários:** Ver contas seguidas que marcaram presença no evento.
-    - **Comentar:** Publicar comentários nos eventos.
+    - **Comentar:** Publicar comentários nos eventos, ou respostas em comentários.
+    - **Ups**: Sistema de Ups em comentários.
+    - **Votação**: Estrutura para votar no evento após a finalização dele.
 
 
 - **Insígnias para Participantes e Promotores**

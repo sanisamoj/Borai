@@ -6,4 +6,5 @@ interface ServerContainer {
     val eventRepository: EventRepository
     val botRepository: BotRepository
     val mailRepository: MailRepository
+    val insigniaRepository: InsigniaRepository
 }

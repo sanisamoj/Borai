@@ -8,7 +8,7 @@ import java.io.File
 
 interface DatabaseRepository {
     suspend fun createUser(user: User): User
-    suspend fun getUserByNick(nick: String): User?
+    suspend fun getUsersByNick(nick: String): List<User>
     suspend fun getUserById(userId: String): User
     suspend fun getUserByEmail(email: String): User?
     suspend fun getUserByPhone(phone: String): User?

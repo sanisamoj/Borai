@@ -15,6 +15,7 @@ import io.ktor.http.content.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -99,9 +100,16 @@ class UserManagerService(
 
     suspend fun getAllMediaStorage(userId: String): List<MediaStorage> {
         val user: User = databaseRepository.getUserById(userId)
-        var mediaStorageList: MutableList<MediaStorage> = mutableListOf<MediaStorage>()
+        val mediaStorageList: MutableList<MediaStorage> = mutableListOf()
         user.mediaStorage.forEach { mediaStorageList.add(it) }
-        return mediaStorageList
+        return mediaStorageList.sortedByDescending {
+            LocalDateTime.parse(it.createAt)
+        }
+    }
+
+    suspend fun addMediaToTheMediaStorage(multipartData: MultiPartData, userId: String): List<MediaStorage> {
+        MediaService().savePublicMedia(multipartData, userId)
+        return getAllMediaStorage(userId)
     }
 
 }

@@ -15,10 +15,10 @@ interface EventRepository {
     suspend fun getAllEventFromAccount(accountId: String): List<Event>
     suspend fun getAllEventFromAccountCount(accountId: String): Int
     suspend fun getAllEventFromAccountWithPagination(accountId: String, page: Int, size: Int): List<Event>
-    suspend fun searchEvents(searchEventFilters: SearchEventFilters): List<Event>
+    suspend fun searchEvents(filters: SearchEventFilters): List<Event>
     suspend fun findEventsNearby(filters: SearchEventNearby): List<Event>
-    suspend fun getEventsWithFilterCount(searchEventFilters: SearchEventFilters): Int
-    suspend fun getEventsWithFilterCount(searchEventFilters: SearchEventNearby): Int
+    suspend fun getEventsWithFilterCount(filters: SearchEventFilters): Int
+    suspend fun getEventsWithFilterCount(filters: SearchEventNearby): Int
     suspend fun updateEvent(eventId: String, update: OperationField): Event
 
     suspend fun getPresenceByEventAndUser(eventId: String, userId: String): Presence?

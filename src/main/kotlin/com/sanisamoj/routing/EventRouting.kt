@@ -52,7 +52,7 @@ fun Route.eventRouting() {
                 val principal: JWTPrincipal = call.principal()!!
                 val accountId: String = principal.payload.getClaim("id").asString()
                 val eventId: String = call.request.queryParameters["eventId"].toString()
-                EventHandlerService().unmaskPresence(accountId, eventId)
+                EventHandlerService().unmarkPresence(accountId, eventId)
                 return@delete call.respond(HttpStatusCode.OK)
             }
 
@@ -101,6 +101,7 @@ fun Route.eventRouting() {
             }
 
             val name = call.request.queryParameters["name"]
+            val nick = call.request.queryParameters["nick"]
             val street = call.request.queryParameters["street"]
             val neighborhood = call.request.queryParameters["neighborhood"]
             val city = call.request.queryParameters["city"]
@@ -124,6 +125,7 @@ fun Route.eventRouting() {
 
             val filters = SearchEventFilters(
                 name = name.takeIf { it?.isNotBlank() == true },
+                nick = nick.takeIf { it?.isNotBlank() == true },
                 address = if (street.isNullOrEmpty() && neighborhood.isNullOrEmpty() && city.isNullOrEmpty() && uf.isNullOrEmpty()) {
                     null
                 } else {

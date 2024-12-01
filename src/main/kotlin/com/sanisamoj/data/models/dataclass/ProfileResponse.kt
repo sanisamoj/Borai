@@ -9,8 +9,9 @@ data class ProfileResponse(
     val bio: String?,
     val imageProfile: String,
     val type: String,
-    val events: Int,
+    val presences: Int,
     val followers: Int,
     val following: Int,
-    val public: Boolean
+    val public: Boolean,
+    val visibleInsignias: List<InsigniaResponse>?
 )

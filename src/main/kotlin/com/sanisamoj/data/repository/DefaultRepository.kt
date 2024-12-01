@@ -29,8 +29,14 @@ class DefaultRepository: DatabaseRepository {
         return getUserById(userId)
     }
 
-    override suspend fun getUserByNick(nick: String): User? {
-        return MongodbOperations().findOne<User>(CollectionsInDb.Users, OperationField(Fields.Nick, nick))
+    override suspend fun getUsersByNick(nick: String): List<User> {
+        // Build a regex query to find similar nicknames (case insensitive)
+        val query = Document("nick", Document("\$regex", nick).append("\$options", "i"))
+
+        return MongodbOperationsWithQuery().findAllByFilterWithQuery<User>(
+            collectionName = CollectionsInDb.Users,
+            query = query
+        )
     }
 
     override suspend fun getUserById(userId: String): User {
@@ -265,7 +271,7 @@ class DefaultRepository: DatabaseRepository {
             query = userQuery
         )
 
-        return userFollowers?.pendingFollowRequests?.map { it.toString() } ?: emptyList()
+        return userFollowers?.pendingFollowRequests?.map { it } ?: emptyList()
     }
 
     override suspend fun getPendingSentRequests(userId: String): List<String> {
@@ -280,7 +286,7 @@ class DefaultRepository: DatabaseRepository {
             query = userQuery
         )
 
-        return userFollowers?.pendingSentRequests?.map { it.toString() } ?: emptyList()
+        return userFollowers?.pendingSentRequests?.map { it } ?: emptyList()
     }
 
     override suspend fun removeFollowing(followerId: String, followingId: String) {
@@ -316,7 +322,7 @@ class DefaultRepository: DatabaseRepository {
             query = userQuery
         )
 
-        return userFollowers?.followerIds?.map { it.toString() } ?: emptyList()
+        return userFollowers?.followerIds?.map { it } ?: emptyList()
     }
 
     override suspend fun getFollowing(userId: String): List<String> {
@@ -330,7 +336,7 @@ class DefaultRepository: DatabaseRepository {
             query = userQuery
         )
 
-        return userFollowing?.followingIds?.map { it.toString() } ?: emptyList()
+        return userFollowing?.followingIds?.map { it } ?: emptyList()
     }
 
     override suspend fun getMutualFollowers(userId: String): List<String> {

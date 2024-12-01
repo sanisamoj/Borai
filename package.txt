@@ -1,3 +1,26 @@
+v0.1.13
+
+ - Implementação da estrutura de insígnias.
+  * Criação de insignias.
+  * Observador para analisar o merecimento das insignias.
+  * Funcionalidades para adicionar e remover insignias na visibilidade do perfil.
+
+
+ - Verificação de número.
+  * No momento da criação de usuário, verificar se há apenas números.
+
+ - Funcionalidade para adicionar imagens a coleção ( armazenamento de mídia ).
+
+ - Rota para retornar imagens salvas no sistema.
+
+ - Implementação no filtro de pesquisa de eventos.
+  * Busca de eventos baseados em criadores de eventos.
+
+ - Busca de perfis através do Nick.
+  * Uma lista de perfis com nicks próximos é retornado.
+
+ - Retorno de eventos criados pelo usuário.
+
 v0.1.12
 
  - Verificação do tipo de conta no momento da criação dela.
