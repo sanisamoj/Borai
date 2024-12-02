@@ -9,7 +9,7 @@ data class Address(
     val street: String? = null,
     val houseNumber: String? = null,
     val complement: String? = null,
-    val neighborhood: String,
-    val city: String,
+    val neighborhood: String? = null,
+    val city: String? = null,
     val uf: String
 )

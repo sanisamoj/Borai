@@ -62,6 +62,16 @@ class DefaultRepository: DatabaseRepository {
         return user
     }
 
+    override suspend fun updateUserWithQuery(query: Document, update: Document): User {
+        val updatedUser: User? = MongodbOperationsWithQuery().updateAndReturnItemWithQuery(
+            collectionName = CollectionsInDb.Users,
+            query = query,
+            update = update
+        )
+
+        return updatedUser ?: throw CustomException(Errors.UserNotFound)
+    }
+
     override suspend fun deleteUser(userId: String) {
         MongodbOperations().deleteItem<User>(CollectionsInDb.Users, OperationField(Fields.Id, ObjectId(userId)))
     }

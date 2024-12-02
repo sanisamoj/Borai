@@ -38,6 +38,14 @@ class EventHandlerService(
 
         val event: Event = eventRepository.getEventById(eventId)
         insigniaObserver.addPoints(event.accountId, InsigniaCriteriaType.PresencesEvents, 1.0)
+
+        val preferences: UserPreference = user.preferences
+        val creators = preferences.creators.toMutableList()
+
+        if (!creators.contains(event.accountId)) {
+            creators.add(event.accountId)
+            repository.updateUser(userId, OperationField(Fields.Preferences, preferences.copy(creators = creators)))
+        }
     }
 
     suspend fun unmarkPresence(userId: String, eventId: String) {

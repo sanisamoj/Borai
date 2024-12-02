@@ -4,6 +4,7 @@ import com.sanisamoj.data.models.dataclass.MediaStorage
 import com.sanisamoj.data.models.dataclass.User
 import com.sanisamoj.database.mongodb.OperationField
 import io.ktor.http.content.*
+import org.bson.Document
 import java.io.File
 
 interface DatabaseRepository {
@@ -13,6 +14,7 @@ interface DatabaseRepository {
     suspend fun getUserByEmail(email: String): User?
     suspend fun getUserByPhone(phone: String): User?
     suspend fun updateUser(userId: String, update: OperationField): User
+    suspend fun updateUserWithQuery(query: Document, update: Document): User
     suspend fun deleteUser(userId: String)
     suspend fun getUsersWithPagination(pageSize: Int = 10, pageNumber: Int = 1): List<User>
     suspend fun getUsersCount(): Int

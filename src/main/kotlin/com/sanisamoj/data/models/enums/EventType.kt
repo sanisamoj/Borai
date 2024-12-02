@@ -1,6 +1,17 @@
 package com.sanisamoj.data.models.enums
 
 enum class EventType {
-    CULTURAL, SPORTS, CORPORATE, EDUCATIONAL, SOCIAL, TECHNOLOGY, GASTRONOMIC,
-    RELIGIOUS, ENTERTAINMENT, HEALTH, FASHION, ENVIRONMENTAL, FESTIVE
+    Cultural,
+    Sports,
+    Corporate,
+    Educational,
+    Social,
+    Technology,
+    Gastronomic,
+    Religious,
+    Entertainment,
+    Health,
+    Fashion,
+    Environmental,
+    Festive
 }

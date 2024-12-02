@@ -63,6 +63,25 @@ class DefaultEventRepository: EventRepository {
             .append("\$maxDistance", filters.maxDistanceMeters)
         ))
 
+        filters.nick?.let {
+            val user: User = MongodbOperations().findOne<User>(CollectionsInDb.Users, OperationField(Fields.Nick, it))
+                ?: throw CustomException(Errors.UserNotFound)
+
+            query.append("accountId", user.id.toString())
+        }
+
+        filters.type?.let {
+            query.append("type", Document("\$in", it))
+        }
+
+        filters.date?.let { startDate ->
+            val endDate = filters.endDate ?: startDate.toLocalDate().atTime(23, 59, 59)
+            query.append(
+                "date",
+                Document("\$gte", startDate).append("\$lte", endDate)
+            )
+        }
+
         return MongodbOperationsWithQuery().findAllWithPagingAndFilterWithQuery(
             collectionName = CollectionsInDb.Events,
             pageSize = filters.size,

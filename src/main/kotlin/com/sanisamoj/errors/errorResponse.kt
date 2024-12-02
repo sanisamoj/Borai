@@ -143,6 +143,10 @@ fun errorResponse(exception: CustomException): Pair<HttpStatusCode, ErrorRespons
             HttpStatusCode.Conflict to ErrorResponse(Errors.InsigniaAlreadyAdded.description)
         }
 
+        Errors.DuplicatePreference -> {
+            HttpStatusCode.Conflict to ErrorResponse(Errors.DuplicatePreference.description)
+        }
+
         Errors.UnsupportedMediaType -> {
             HttpStatusCode.UnsupportedMediaType to ErrorResponse(
                 error = Errors.UnsupportedMediaType.description,

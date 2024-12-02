@@ -79,7 +79,7 @@ class UserAuthenticationService(
         val isPasswordCorrect: Boolean = BCrypt.checkpw(login.password, user.password)
         if (!isPasswordCorrect) throw CustomException(Errors.InvalidLogin)
 
-        val userResponse: UserResponse = UserFactory.userResponse(user)
+        val userResponse: UserResponse = UserFactory.userResponse(user.id.toString())
         val sessionId: String = ObjectId().toString()
 
         val time: Long = USER_TOKEN_EXPIRATION

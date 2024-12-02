@@ -71,8 +71,24 @@ fun Route.eventRouting() {
             val longitude = call.request.queryParameters["longitude"]?.toDoubleOrNull()
             val latitude = call.request.queryParameters["latitude"]?.toDoubleOrNull()
             val maxDistanceMeters = call.request.queryParameters["maxDistanceMeters"]?.toIntOrNull()
+            val nick = call.request.queryParameters["nick"]
+            val type = call.request.queryParameters["type"]?.split(",") // Expecting comma separated types
             val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
             val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
+            val date = call.request.queryParameters["date"]?.let {
+                try {
+                    LocalDateTime.parse(it)
+                } catch (_: Exception) {
+                    null
+                }
+            }
+            val endDate = call.request.queryParameters["endDate"]?.let {
+                try {
+                    LocalDateTime.parse(it)
+                } catch (_: Exception) {
+                    null
+                }
+            }
 
             if (longitude == null || latitude == null || maxDistanceMeters == null) {
                 throw CustomException(Errors.InvalidParameters)
@@ -82,6 +98,10 @@ fun Route.eventRouting() {
                 longitude = longitude,
                 latitude = latitude,
                 maxDistanceMeters = maxDistanceMeters,
+                nick = nick.takeIf { it?.isNotBlank() == true },
+                type = type?.takeIf { it.isNotEmpty() },
+                date = date,
+                endDate = endDate,
                 page = page,
                 size = size
             )
@@ -106,7 +126,7 @@ fun Route.eventRouting() {
             val neighborhood = call.request.queryParameters["neighborhood"]
             val city = call.request.queryParameters["city"]
             val uf = call.request.queryParameters["uf"]
-            val type = call.request.queryParameters["type"]?.split(",") // Esperando tipos separados por vírgula
+            val type = call.request.queryParameters["type"]?.split(",") // Expecting comma separated types
             val status = call.request.queryParameters["status"]
             val date = call.request.queryParameters["date"]?.let {
                 try {

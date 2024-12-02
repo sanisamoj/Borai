@@ -1,15 +1,23 @@
 package com.sanisamoj.services.user
 
-import com.sanisamoj.data.models.dataclass.MinimalUserResponse
-import com.sanisamoj.data.models.dataclass.User
-import com.sanisamoj.data.models.dataclass.UserCreateRequest
-import com.sanisamoj.data.models.dataclass.UserResponse
+import com.sanisamoj.config.GlobalContext
+import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.enums.AccountStatus
+import com.sanisamoj.data.models.interfaces.DatabaseRepository
+import com.sanisamoj.data.models.interfaces.EventRepository
 import com.sanisamoj.services.insignia.InsigniaFactory
 import org.mindrot.jbcrypt.BCrypt
 
 object UserFactory {
-    fun userResponse(user: User): UserResponse {
+    private val eventRepository: EventRepository = GlobalContext.getEventRepository()
+    private val repository: DatabaseRepository = GlobalContext.getDatabaseRepository()
+
+    suspend fun userResponse(user: User): UserResponse {
+        val userId: String = user.id.toString()
+        val presencesCount: Int = eventRepository.getPresenceByUserCount(userId)
+        val followers: Int = repository.getFollowers(userId).size
+        val following: Int = repository.getFollowing(userId).size
+
         return UserResponse(
             id = user.id.toString(),
             nick = user.nick,
@@ -19,8 +27,37 @@ object UserFactory {
             email = user.email,
             phone = user.phone,
             type = user.type,
+            presences = presencesCount,
+            followers = followers,
+            following = following,
             insignias = user.insignias?.map { InsigniaFactory.insigniaResponseFactory(it) },
             visibleInsignias = user.visibleInsignias?.map { InsigniaFactory.insigniaResponseFactory(it) },
+            preferences = user.preferences,
+            createdAt = user.createdAt.toString(),
+        )
+    }
+
+    suspend fun userResponse(userId: String): UserResponse {
+        val user: User = repository.getUserById(userId)
+        val presencesCount: Int = eventRepository.getPresenceByUserCount(userId)
+        val followers: Int = repository.getFollowers(userId).size
+        val following: Int = repository.getFollowing(userId).size
+
+        return UserResponse(
+            id = user.id.toString(),
+            nick = user.nick,
+            bio = user.bio,
+            username = user.username,
+            imageProfile = if(user.imageProfile == "") null else user.imageProfile,
+            email = user.email,
+            phone = user.phone,
+            type = user.type,
+            presences = presencesCount,
+            followers = followers,
+            following = following,
+            insignias = user.insignias?.map { InsigniaFactory.insigniaResponseFactory(it) },
+            visibleInsignias = user.visibleInsignias?.map { InsigniaFactory.insigniaResponseFactory(it) },
+            preferences = user.preferences,
             createdAt = user.createdAt.toString(),
         )
     }
@@ -36,7 +73,9 @@ object UserFactory {
             email = userCreateRequest.email,
             phone = userCreateRequest.phone,
             password = hashedPassword,
+            address = userCreateRequest.address,
             type = userCreateRequest.type,
+            preferences = UserPreference(),
             accountStatus = AccountStatus.Inactive.name
         )
     }

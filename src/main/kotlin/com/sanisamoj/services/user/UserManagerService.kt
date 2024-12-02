@@ -5,16 +5,19 @@ import com.sanisamoj.config.GlobalContext
 import com.sanisamoj.config.GlobalContext.NOTIFICATION_BOT_ID
 import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.enums.Errors
+import com.sanisamoj.data.models.enums.EventType
 import com.sanisamoj.data.models.interfaces.BotRepository
 import com.sanisamoj.data.models.interfaces.DatabaseRepository
 import com.sanisamoj.database.mongodb.Fields
 import com.sanisamoj.database.mongodb.OperationField
 import com.sanisamoj.services.media.MediaService
+import com.sanisamoj.utils.analyzers.isInEnum
 import com.sanisamoj.utils.generators.CharactersGenerator
 import io.ktor.http.content.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.bson.Document
 import java.time.LocalDateTime
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -26,6 +29,12 @@ class UserManagerService(
 
     suspend fun updateName(userId: String, name: String): UserResponse {
         databaseRepository.updateUser(userId, OperationField(Fields.Username, value = name))
+        val user: User = databaseRepository.getUserById(userId)
+        return UserFactory.userResponse(user)
+    }
+
+    suspend fun updateNick(userId: String, nick: String): UserResponse {
+        databaseRepository.updateUser(userId, OperationField(Fields.Nick, value = nick))
         val user: User = databaseRepository.getUserById(userId)
         return UserFactory.userResponse(user)
     }
@@ -110,6 +119,46 @@ class UserManagerService(
     suspend fun addMediaToTheMediaStorage(multipartData: MultiPartData, userId: String): List<MediaStorage> {
         MediaService().savePublicMedia(multipartData, userId)
         return getAllMediaStorage(userId)
+    }
+
+    suspend fun addEventPreference(userId: String, preference: String): UserResponse {
+        verifyEventPreference(preference)
+        val user: User = databaseRepository.getUserById(userId)
+
+        val updatedPreferences: MutableList<String> = user.preferences.eventPreferences.toMutableList()
+
+        if (!updatedPreferences.contains(preference)) {
+            updatedPreferences.add(preference)
+        } else throw CustomException(Errors.DuplicatePreference)
+
+        val updatedUser = databaseRepository.updateUserWithQuery(
+            query = Document(Fields.Id.title, user.id),
+            update = Document("preferences.eventPreferences", updatedPreferences)
+        )
+
+        return UserFactory.userResponse(updatedUser)
+    }
+
+    suspend fun removeEventPreference(userId: String, preference: String): UserResponse {
+        verifyEventPreference(preference)
+        val user: User = databaseRepository.getUserById(userId)
+
+        val updatedPreferences: MutableList<String> = user.preferences.eventPreferences.toMutableList()
+
+        if (updatedPreferences.contains(preference)) {
+            updatedPreferences.remove(preference)
+        } else throw CustomException(Errors.UnableToComplete)
+
+        val updatedUser = databaseRepository.updateUserWithQuery(
+            query = Document(Fields.Id.title, user.id),
+            update = Document("preferences.eventPreferences", updatedPreferences)
+        )
+
+        return UserFactory.userResponse(updatedUser)
+    }
+
+    private fun verifyEventPreference(preference: String) {
+        if(!preference.isInEnum<EventType>()) throw CustomException(Errors.InvalidParameters)
     }
 
 }

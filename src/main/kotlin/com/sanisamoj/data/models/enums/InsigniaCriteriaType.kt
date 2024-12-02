@@ -8,11 +8,11 @@ enum class InsigniaCriteriaType(val title: String) {
     Events("events"), // Number of events created
     PresencesEvents("presencesEvents"), // Number of attendances at created events
     CommentsEvents("commentsEvents"), // Number of comments on events
-    //RatingEvents("presencesFromTheUser"), // Number of rate on events
+    //RatingEvents("ratingEvents"), // Number of rate on events
 
-    PresencesFromTheUser("invitationsReceived"), // Number of user presences at events
-//    InvitationsReceived("invitationsSent"), // Number of invitations made
-//    InvitationsSent("ratingEvents"), // Number of invitations received
+    PresencesFromTheUser("presencesFromTheUser"), // Number of user presences at events
+//    InvitationsReceived("invitationsReceived"), // Number of invitations made
+//    InvitationsSent("invitationsSent"), // Number of invitations received
 //    FollowersCount("followersCount"), // Number of followers
 //    FollowingCount("followingCount") // Number of following
 }

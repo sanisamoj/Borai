@@ -5,6 +5,7 @@ import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.enums.Errors
 import com.sanisamoj.data.models.enums.EventStatus
 import com.sanisamoj.services.event.EventManagerService
+import com.sanisamoj.services.event.EventService
 import com.sanisamoj.services.followers.FollowerService
 import com.sanisamoj.services.media.MediaService
 import com.sanisamoj.services.user.UserAuthenticationService
@@ -52,6 +53,10 @@ fun Route.userRouting() {
                     when {
                         putUserProfile.name != null -> {
                             val userResponse = userManagerService.updateName(userId, putUserProfile.name)
+                            return@put call.respond(HttpStatusCode.OK, userResponse)
+                        }
+                        putUserProfile.nick != null -> {
+                            val userResponse = userManagerService.updateNick(userId, putUserProfile.nick)
                             return@put call.respond(HttpStatusCode.OK, userResponse)
                         }
                         putUserProfile.phone != null -> {
@@ -260,8 +265,8 @@ fun Route.userRouting() {
 
             // Responsible for add media to the collections
             post("/storage") {
-                val principal = call.principal<JWTPrincipal>()!!
-                val accountId = principal.payload.getClaim("id").asString()
+                val principal: JWTPrincipal = call.principal<JWTPrincipal>()!!
+                val accountId: String = principal.payload.getClaim("id").asString()
 
                 val multipartData: MultiPartData = call.receiveMultipart()
                 val requestSize: String? = call.request.headers[HttpHeaders.ContentLength]
@@ -270,6 +275,42 @@ fun Route.userRouting() {
 
                 val mediaStorageList: List<MediaStorage> = UserManagerService().addMediaToTheMediaStorage(multipartData, accountId)
                 return@post call.respond(mediaStorageList)
+            }
+
+            // Responsible for adding event preferences
+            post("event-preferences") {
+                val principal: JWTPrincipal = call.principal<JWTPrincipal>()!!
+                val accountId: String = principal.payload.getClaim("id").asString()
+                val preferenceType: String = call.parameters["preference"].toString()
+                val userResponse: UserResponse = UserManagerService().addEventPreference(accountId, preferenceType)
+                return@post call.respond(userResponse)
+            }
+
+            // Responsible for remove event preferences
+            delete("event-preferences") {
+                val principal: JWTPrincipal = call.principal<JWTPrincipal>()!!
+                val accountId: String = principal.payload.getClaim("id").asString()
+                val preferenceType: String = call.parameters["preference"].toString()
+                val userResponse: UserResponse = UserManagerService().removeEventPreference(accountId, preferenceType)
+                return@delete call.respond(userResponse)
+            }
+
+            // Responsible for returning preference feed
+            get("/preference-feed") {
+                val principal: JWTPrincipal = call.principal<JWTPrincipal>()!!
+                val accountId: String = principal.payload.getClaim("id").asString()
+                val page: Int = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+                val size: Int = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
+                val eventResponseList = EventService().getPersonalizedEventFeed(accountId, page, size)
+                return@get call.respond(eventResponseList)
+            }
+
+            // Responsible for returning interactions feed
+            get("/interaction-feed") {
+                val principal: JWTPrincipal = call.principal<JWTPrincipal>()!!
+                val accountId: String = principal.payload.getClaim("id").asString()
+                val eventResponseList = EventService().getPersonalizedEventFeedWithInteractions(accountId)
+                return@get call.respond(eventResponseList)
             }
 
         }

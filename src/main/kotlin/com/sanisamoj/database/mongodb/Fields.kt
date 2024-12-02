@@ -18,6 +18,7 @@ enum class Fields(val title: String) {
     Quantity(title = "quantity"),
     VisibleInsignias(title = "visibleInsignias"),
     EventId(title = "eventId"),
+    Preferences(title = "preferences"),
     Address(title = "address"),
     ParentId(title = "parentId"),
     Username(title = "username"),

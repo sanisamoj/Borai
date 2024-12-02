@@ -1,3 +1,13 @@
+v0.1.15
+
+ - Adição na resposta de login, a quantidade de eventos, seguidores e seguindo.
+
+ - Adição de filtros ( nick, date, endDate e type ) nas pesquisas Nearby de eventos.
+
+ - Implementação das preferências do usuário.
+
+ - Implementação de algoritmo para o feed, baseado nas interações com os usuários e eventos.
+
 v0.1.14
 
  - Ampliação das respostas de erros.

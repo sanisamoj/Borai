@@ -26,6 +26,7 @@ enum class Errors(val description: String) {
     InsigniaAlreadyAdded("Insignia already added!"),
     InternalServerError("Internal Server Error!"),
     BotTokenNotUpdated("Bot token not updated!"),
+    DuplicatePreference("Duplicate preference!"),
     LogTokenNotUpdated("Log token not updated!"),
     NoItemsWereDeleted("No items were deleted!"),
     RedisNotResponding("Redis not responding!"),

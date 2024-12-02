@@ -12,7 +12,11 @@ data class UserResponse(
     val email: String,
     val phone: String,
     val type: String,
+    val presences: Int,
+    val followers: Int,
+    val following: Int,
     val insignias: List<InsigniaResponse>?,
     val visibleInsignias: List<InsigniaResponse>?,
+    val preferences: UserPreference?,
     val createdAt: String
 )
