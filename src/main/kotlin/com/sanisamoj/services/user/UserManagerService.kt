@@ -62,16 +62,16 @@ class UserManagerService(
         sendValidationCodeMessageByBot(newPhone, validationCode)
     }
 
-    suspend fun updateAddress(userId: String, address: Address) {
-        databaseRepository.updateUser(userId, OperationField(Fields.Address, address))
-    }
-
     suspend fun validateValidationCodeToUpdatePhone(userId: String, newPhone: String, validationCode: Int): UserResponse {
         isCorrectCode(userId, validationCode)
 
         databaseRepository.updateUser(userId, OperationField(Fields.Phone, newPhone))
         val updatedUser: User = databaseRepository.getUserById(userId)
         return UserFactory.userResponse(updatedUser)
+    }
+
+    suspend fun updateAddress(userId: String, address: Address) {
+        databaseRepository.updateUser(userId, OperationField(Fields.Address, address))
     }
 
     private suspend fun sendValidationCodeMessageByBot(phone: String, validationCode: Int) {
