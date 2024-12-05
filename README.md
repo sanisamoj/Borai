@@ -142,9 +142,14 @@ MODERATOR_SECRET=
 
 #### Execute o comando a seguir para executar a imagem criada com o Docker.
 
-    docker run --name borai -p 7070:7070 borai:latest
+    docker run --name borai -p 7373:7373 borai:latest
   
 
 ## Endpoints disponíveis
 No momento apenas alguns endpoints estão disponíveis, e estão hospedados na página de endpoints do Postman.
 https://documenter.getpostman.com/view/29175154/2sAYBPnEij
+
+## Formas para contribuir
+Você pode contribuir com o projeto de forma:
+
+ - Você pode baixar o aplicativo [Borai](https://github.com/sanisamoj/BoraiApp): Baixando o aplicativo você pode criar uma conta, criar eventos, e interagir com eventos e usuários.

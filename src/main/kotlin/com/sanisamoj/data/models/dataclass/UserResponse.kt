@@ -12,6 +12,7 @@ data class UserResponse(
     val email: String,
     val phone: String,
     val type: String,
+    val address: Address,
     val presences: Int,
     val followers: Int,
     val following: Int,

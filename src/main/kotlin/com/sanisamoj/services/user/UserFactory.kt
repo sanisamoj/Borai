@@ -27,6 +27,7 @@ object UserFactory {
             email = user.email,
             phone = user.phone,
             type = user.type,
+            address = user.address,
             presences = presencesCount,
             followers = followers,
             following = following,
@@ -52,6 +53,7 @@ object UserFactory {
             email = user.email,
             phone = user.phone,
             type = user.type,
+            address = user.address,
             presences = presencesCount,
             followers = followers,
             following = following,
@@ -65,6 +67,7 @@ object UserFactory {
     // Transforms the user creation request into USER
     fun user(userCreateRequest: UserCreateRequest): User {
         val hashedPassword: String = BCrypt.hashpw(userCreateRequest.password, BCrypt.gensalt())
+        val preferences: UserPreference = userCreateRequest.preferences ?: UserPreference()
         return User(
             nick = userCreateRequest.nick,
             bio = userCreateRequest.bio,
@@ -75,7 +78,7 @@ object UserFactory {
             password = hashedPassword,
             address = userCreateRequest.address,
             type = userCreateRequest.type,
-            preferences = UserPreference(),
+            preferences = preferences,
             accountStatus = AccountStatus.Inactive.name
         )
     }
