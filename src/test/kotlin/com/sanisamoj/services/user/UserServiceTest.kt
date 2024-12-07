@@ -1,4 +1,4 @@
-package com.sanisamoj.services
+package com.sanisamoj.services.user
 
 import com.sanisamoj.config.GlobalContextTest
 import com.sanisamoj.data.models.dataclass.*
@@ -6,11 +6,13 @@ import com.sanisamoj.data.models.enums.AccountType
 import com.sanisamoj.data.models.enums.Errors
 import com.sanisamoj.data.models.interfaces.DatabaseRepository
 import com.sanisamoj.database.mongodb.CollectionsInDb
-import com.sanisamoj.services.user.UserService
 import com.sanisamoj.utils.eraseAllDataInMongodb
 import io.ktor.server.testing.*
 import kotlinx.coroutines.runBlocking
-import kotlin.test.*
+import kotlin.test.AfterTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class UserServiceTest {
     private val repository: DatabaseRepository = GlobalContextTest.getDatabaseRepository()

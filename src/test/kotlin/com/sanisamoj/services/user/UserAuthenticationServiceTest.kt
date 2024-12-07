@@ -1,10 +1,9 @@
-package com.sanisamoj.services
+package com.sanisamoj.services.user
 
 import com.sanisamoj.config.GlobalContext
 import com.sanisamoj.config.GlobalContextTest
 import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.enums.AccountStatus
-import com.sanisamoj.data.models.enums.AccountType
 import com.sanisamoj.data.models.enums.Errors
 import com.sanisamoj.data.models.interfaces.DatabaseRepository
 import com.sanisamoj.data.models.interfaces.MailRepository
@@ -12,8 +11,6 @@ import com.sanisamoj.data.models.interfaces.SessionRepository
 import com.sanisamoj.database.mongodb.CollectionsInDb
 import com.sanisamoj.database.mongodb.Fields
 import com.sanisamoj.database.mongodb.OperationField
-import com.sanisamoj.services.user.UserAuthenticationService
-import com.sanisamoj.services.user.UserService
 import com.sanisamoj.utils.analyzers.dotEnv
 import com.sanisamoj.utils.eraseAllDataInMongodb
 import com.sanisamoj.utils.generators.Token
@@ -36,28 +33,9 @@ class UserAuthenticationServiceTest {
         runBlocking { eraseAllDataInMongodb<User>(CollectionsInDb.Users) }
     }
 
-    private fun validUserCreateRequest(): UserCreateRequest {
-        return UserCreateRequest(
-            nick = "user123",
-            bio = "I love coding and testing",
-            username = "user123",
-            imageProfile = null,
-            email = "user123@example.com",
-            password = "securePassword123",
-            phone = "+1234567890",
-            type = AccountType.PARTICIPANT.name,
-            preferences = UserPreference(eventPreferences = listOf("Technology")),
-            doc = Doc(type = "passport", number = "123456789"),
-            address = Address(
-                city = "São Paulo",
-                uf = "SP"
-            )
-        )
-    }
-
     private suspend fun createUser(): UserResponse {
         val userService = UserService(repository)
-        val userCreateRequest: UserCreateRequest = validUserCreateRequest()
+        val userCreateRequest: UserCreateRequest = UserRequestFactory.validUserCreateRequest()
         val userResponse: UserResponse = userService.createUser(userCreateRequest)
         return userResponse
     }
@@ -98,8 +76,8 @@ class UserAuthenticationServiceTest {
         val userAuthenticationService = UserAuthenticationService(repository, sessionRepository, mailRepository)
 
         val loginRequest = LoginRequest(
-            email = "user123@example.com",
-            password = "securePassword123",
+            email = userResponse.email,
+            password = UserRequestFactory.PASSWORD_TEST,
         )
 
         val inactiveAccountException = assertFailsWith<CustomException> {

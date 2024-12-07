@@ -73,8 +73,12 @@ Esse projeto é, no fundo, um empurrãozinho gentil para que os tímidos e os di
   
 
 - **Injeção de Dependência**
-  - A Injeção de Dependência (DI) foi escolhida pois facilita os testes, podendo tanto trocar a implementações de registros, como também na expansão do projeto.
+  - A Injeção de Dependência (DI) foi escolhida, pois facilita os testes, podendo tanto trocar a implementações de registros, como também na expansão do projeto.
 
+## Testes Utilizados
+
+- Testes unitários nas classes de serviços.
+- Testes nas rotas.
 
 ## Para instalação
 Para instalar o projeto para testes, utilizaremos o Docker.
@@ -148,8 +152,3 @@ MODERATOR_SECRET=
 ## Endpoints disponíveis
 No momento apenas alguns endpoints estão disponíveis, e estão hospedados na página de endpoints do Postman.
 https://documenter.getpostman.com/view/29175154/2sAYBPnEij
-
-## Formas para contribuir
-Você pode contribuir com o projeto de forma:
-
- - Você pode baixar o aplicativo [Borai](https://github.com/sanisamoj/BoraiApp): Baixando o aplicativo você pode criar uma conta, criar eventos, e interagir com eventos e usuários.
