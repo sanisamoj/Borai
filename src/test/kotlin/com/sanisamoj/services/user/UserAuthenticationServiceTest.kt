@@ -33,20 +33,13 @@ class UserAuthenticationServiceTest {
         runBlocking { eraseAllDataInMongodb<User>(CollectionsInDb.Users) }
     }
 
-    private suspend fun createUser(): UserResponse {
-        val userService = UserService(repository)
-        val userCreateRequest: UserCreateRequest = UserRequestFactory.validUserCreateRequest()
-        val userResponse: UserResponse = userService.createUser(userCreateRequest)
-        return userResponse
-    }
-
     private suspend fun activateUser(userId: String) {
         repository.updateUser(userId, OperationField(Fields.AccountStatus, AccountStatus.Active.name))
     }
 
     @Test
     fun `generate validation email token and confirm account`() = testApplication {
-        val userResponse: UserResponse = createUser()
+        val userResponse: UserResponse = UserRequestFactory.createUser()
         val userAuthenticationService = UserAuthenticationService(repository, sessionRepository, mailRepository)
 
         val user: User = repository.getUserById(userResponse.id)
@@ -72,7 +65,7 @@ class UserAuthenticationServiceTest {
 
     @Test
     fun loginTest() = testApplication {
-        val userResponse: UserResponse = createUser()
+        val userResponse: UserResponse = UserRequestFactory.createUser()
         val userAuthenticationService = UserAuthenticationService(repository, sessionRepository, mailRepository)
 
         val loginRequest = LoginRequest(
@@ -97,7 +90,7 @@ class UserAuthenticationServiceTest {
 
     @Test
     fun sessionTest() = testApplication {
-        val userResponse: UserResponse = createUser()
+        val userResponse: UserResponse = UserRequestFactory.createUser()
         activateUser(userResponse.id)
         val userAuthenticationService = UserAuthenticationService(repository, sessionRepository, mailRepository)
 

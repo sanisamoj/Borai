@@ -1,13 +1,13 @@
 package com.sanisamoj.services.user
 
-import com.sanisamoj.data.models.dataclass.Address
-import com.sanisamoj.data.models.dataclass.Doc
-import com.sanisamoj.data.models.dataclass.UserCreateRequest
-import com.sanisamoj.data.models.dataclass.UserPreference
+import com.sanisamoj.config.GlobalContextTest
+import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.enums.AccountType
+import com.sanisamoj.data.models.interfaces.DatabaseRepository
 import java.util.UUID
 
 object UserRequestFactory {
+    private val repository: DatabaseRepository = GlobalContextTest.getDatabaseRepository()
 
     const val PASSWORD_TEST: String = "securePassword123"
 
@@ -54,6 +54,13 @@ object UserRequestFactory {
                 uf = "SP"
             )
         )
+    }
+
+    suspend fun createUser(): UserResponse {
+        val userService = UserService(repository)
+        val userCreateRequest: UserCreateRequest = validUserCreateRequest()
+        val userResponse: UserResponse = userService.createUser(userCreateRequest)
+        return userResponse
     }
 
 }

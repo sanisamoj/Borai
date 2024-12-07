@@ -22,16 +22,9 @@ class UserActivityServiceTest {
         runBlocking { eraseAllDataInMongodb<User>(CollectionsInDb.Users) }
     }
 
-    private suspend fun createUser(): UserResponse {
-        val userService = UserService(repository)
-        val userCreateRequest: UserCreateRequest = UserRequestFactory.validUserCreateRequest()
-        val userResponse: UserResponse = userService.createUser(userCreateRequest)
-        return userResponse
-    }
-
     @Test
     fun getProfileByIdTest() = testApplication {
-        val userResponse: UserResponse = createUser()
+        val userResponse: UserResponse = UserRequestFactory.createUser()
         val userActivityService = UserActivityService(repository = repository)
 
         val profileResponse: ProfileResponse = userActivityService.getProfileById(userResponse.id)
@@ -49,7 +42,7 @@ class UserActivityServiceTest {
 
     @Test
     fun getProfileByNickTest() = testApplication {
-        val userResponse: UserResponse = createUser()
+        val userResponse: UserResponse = UserRequestFactory.createUser()
         val userActivityService = UserActivityService(repository = repository)
 
         val profileResponseList: List<ProfileResponse> = userActivityService.getProfilesByNick(userResponse.nick)
@@ -83,7 +76,7 @@ class UserActivityServiceTest {
 
     @Test
     fun `get presences from the user when is a public account`() = testApplication {
-        val userResponse: UserResponse = createUser()
+        val userResponse: UserResponse = UserRequestFactory.createUser()
         val userActivityService = UserActivityService(repository = repository)
 
         val minimalEventResponseList = userActivityService.getPresencesFromProfile(userResponse.id, userResponse.id, 1, 10)
@@ -92,7 +85,7 @@ class UserActivityServiceTest {
 
     @Test
     fun `get events from the user when is a public account`() = testApplication {
-        val userResponse: UserResponse = createUser()
+        val userResponse: UserResponse = UserRequestFactory.createUser()
         val userActivityService = UserActivityService(repository = repository)
 
         val minimalEventResponseList = userActivityService.getEventsFromProfile(userResponse.id, userResponse.id, 1, 10)
