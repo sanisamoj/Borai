@@ -5,6 +5,6 @@ import com.sanisamoj.data.models.interfaces.MailRepository
 
 class TestMailRepository: MailRepository {
     override fun sendEmail(sendEmailData: SendEmailData) {
-        println(sendEmailData)
+        return
     }
 }

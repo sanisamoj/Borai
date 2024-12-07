@@ -9,8 +9,8 @@
     <description>Borai</description>
     <properties>
         <kotlin.code.style>official</kotlin.code.style>
-        <kotlin_version>2.0.21</kotlin_version>
-        <ktor_version>2.3.12</ktor_version>
+        <kotlin_version>2.1.0</kotlin_version>
+        <ktor_version>3.0.2</ktor_version>
         <logback_version>1.4.14</logback_version>
         <slf4j_version>2.0.9</slf4j_version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -93,7 +93,7 @@
         <dependency>
             <groupId>io.ktor</groupId>
             <artifactId>ktor-server-auth-jwt-jvm</artifactId>
-            <version>2.3.12</version>
+            <version>${ktor_version}</version>
         </dependency>
 
         <!--.env-->
@@ -177,7 +177,7 @@
         <dependency>
             <groupId>io.ktor</groupId>
             <artifactId>ktor-server-rate-limit-jvm</artifactId>
-            <version>2.3.12</version>
+            <version>${ktor_version}</version>
         </dependency>
 
 

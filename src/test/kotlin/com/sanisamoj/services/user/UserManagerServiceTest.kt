@@ -11,7 +11,7 @@ import com.sanisamoj.utils.eraseAllDataInMongodb
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.testing.*
-import io.ktor.utils.io.streams.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import kotlin.test.*
@@ -39,8 +39,10 @@ class UserManagerServiceTest {
             override suspend fun readPart(): PartData? {
                 if (isPartRead) return null // Retorna null após a primeira leitura
                 isPartRead = true
+                val byteArray = file.readBytes()
+                val byteReadChannel = ByteReadChannel(byteArray)
                 return PartData.FileItem(
-                    { file.inputStream().asInput() }, // Converte o arquivo para InputStream
+                    { byteReadChannel }, // Converte o arquivo para InputStream
                     dispose = { file.inputStream().close() },
                     partHeaders = Headers.build {
                         append(HttpHeaders.ContentDisposition, "form-data; name=\"$fieldName\"; filename=\"${file.name}\"")
