@@ -10,6 +10,7 @@ enum class Errors(val description: String) {
     LimitOnTheNumberOfImageReached("Limit on the number of images reached."),
     UserDidNotAttendEvent("User did not attend the event and cannot vote!"),
     ImageNotFoundInOtherImages("Image not found in event's other images!"),
+    TheEventDateCannotBeInThePast("The event date cannot be in the past."),
     TheLimitMaxImageAllowed("The limit of images has been exceeded!"),
     InsigniaNotFoundInUserList("Insignia not found in user list."),
     MaxRetriesReached("Max retries reached, token update failed."),

@@ -39,7 +39,7 @@ class UserAuthenticationServiceTest {
 
     @Test
     fun `generate validation email token and confirm account`() = testApplication {
-        val userResponse: UserResponse = UserRequestFactory.createUser()
+        val userResponse: UserResponse = UserFactoryTest.createUser()
         val userAuthenticationService = UserAuthenticationService(repository, sessionRepository, mailRepository)
 
         val user: User = repository.getUserById(userResponse.id)
@@ -65,12 +65,12 @@ class UserAuthenticationServiceTest {
 
     @Test
     fun loginTest() = testApplication {
-        val userResponse: UserResponse = UserRequestFactory.createUser()
+        val userResponse: UserResponse = UserFactoryTest.createUser()
         val userAuthenticationService = UserAuthenticationService(repository, sessionRepository, mailRepository)
 
         val loginRequest = LoginRequest(
             email = userResponse.email,
-            password = UserRequestFactory.PASSWORD_TEST,
+            password = UserFactoryTest.PASSWORD_TEST,
         )
 
         val inactiveAccountException = assertFailsWith<CustomException> {
@@ -90,7 +90,7 @@ class UserAuthenticationServiceTest {
 
     @Test
     fun sessionTest() = testApplication {
-        val userResponse: UserResponse = UserRequestFactory.createUser()
+        val userResponse: UserResponse = UserFactoryTest.createUser()
         activateUser(userResponse.id)
         val userAuthenticationService = UserAuthenticationService(repository, sessionRepository, mailRepository)
 

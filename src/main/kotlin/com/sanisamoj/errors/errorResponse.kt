@@ -147,6 +147,10 @@ fun errorResponse(exception: CustomException): Pair<HttpStatusCode, ErrorRespons
             HttpStatusCode.Conflict to ErrorResponse(Errors.DuplicatePreference.description)
         }
 
+        Errors.TheEventDateCannotBeInThePast -> {
+            HttpStatusCode.BadRequest to ErrorResponse(Errors.TheEventDateCannotBeInThePast.description)
+        }
+
         Errors.UnsupportedMediaType -> {
             HttpStatusCode.UnsupportedMediaType to ErrorResponse(
                 error = Errors.UnsupportedMediaType.description,

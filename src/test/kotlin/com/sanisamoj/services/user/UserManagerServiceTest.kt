@@ -48,7 +48,7 @@ class UserManagerServiceTest {
 
     @Test
     fun `update name test`() = testApplication {
-        val userResponse: UserResponse = UserRequestFactory.createUser()
+        val userResponse: UserResponse = UserFactoryTest.createUser()
 
         val userManagerService = UserManagerService(repository, botRepository)
         userManagerService.updateName(userResponse.id, "newName")
@@ -59,7 +59,7 @@ class UserManagerServiceTest {
 
     @Test
     fun `update nick test`() = testApplication {
-        val userResponse: UserResponse = UserRequestFactory.createUser()
+        val userResponse: UserResponse = UserFactoryTest.createUser()
 
         val userManagerService = UserManagerService(repository, botRepository)
         userManagerService.updateNick(userResponse.id, "nick")
@@ -70,7 +70,7 @@ class UserManagerServiceTest {
 
     @Test
     fun `update image profile test`() = testApplication {
-        val userResponse: UserResponse = UserRequestFactory.createUser()
+        val userResponse: UserResponse = UserFactoryTest.createUser()
 
         val userManagerService = UserManagerService(repository, botRepository)
 
@@ -86,7 +86,7 @@ class UserManagerServiceTest {
 
     @Test
     fun `update bio test`() = testApplication {
-        val userResponse: UserResponse = UserRequestFactory.createUser()
+        val userResponse: UserResponse = UserFactoryTest.createUser()
 
         val userManagerService = UserManagerService(repository, botRepository)
         userManagerService.updateBio(userResponse.id, "newBio")
@@ -97,7 +97,7 @@ class UserManagerServiceTest {
 
     @Test
     fun `update phone process`() = testApplication {
-        val userResponse: UserResponse = UserRequestFactory.createUser()
+        val userResponse: UserResponse = UserFactoryTest.createUser()
         val userManagerService = UserManagerService(repository, botRepository)
         val newPhone = "5511988502686"
 
@@ -114,7 +114,7 @@ class UserManagerServiceTest {
 
     @Test
     fun `update address test`() = testApplication {
-        val userResponse: UserResponse = UserRequestFactory.createUser()
+        val userResponse: UserResponse = UserFactoryTest.createUser()
         val userManagerService = UserManagerService(repository, botRepository)
         val newAddress = Address(
             zipcode = "04177070",
@@ -133,7 +133,7 @@ class UserManagerServiceTest {
 
     @Test
     fun `media storage test`() = testApplication {
-        val userResponse: UserResponse = UserRequestFactory.createUser()
+        val userResponse: UserResponse = UserFactoryTest.createUser()
         val userManagerService = UserManagerService(repository, botRepository)
 
         val mediaService = MediaService(repository)
@@ -158,7 +158,7 @@ class UserManagerServiceTest {
 
     @Test
     fun `add event preference test`() = testApplication {
-        val userResponse: UserResponse = UserRequestFactory.createUser()
+        val userResponse: UserResponse = UserFactoryTest.createUser()
         val userManagerService = UserManagerService(repository, botRepository)
 
         val newPreference = "Educational"
@@ -175,7 +175,7 @@ class UserManagerServiceTest {
 
     @Test
     fun `remove event preference test`() = testApplication {
-        val userResponse: UserResponse = UserRequestFactory.createUser()
+        val userResponse: UserResponse = UserFactoryTest.createUser()
         val userManagerService = UserManagerService(repository, botRepository)
 
         val existingPreference = "Educational"
@@ -193,7 +193,7 @@ class UserManagerServiceTest {
 
     @Test
     fun `invalid event preference test`() = testApplication {
-        val userResponse: UserResponse = UserRequestFactory.createUser()
+        val userResponse: UserResponse = UserFactoryTest.createUser()
         val userManagerService = UserManagerService(repository, botRepository)
 
         val invalidPreference = "InvalidPreference"

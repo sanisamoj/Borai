@@ -4,11 +4,13 @@ import com.sanisamoj.config.GlobalContext
 import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.enums.Errors
 import com.sanisamoj.data.models.enums.EventStatus
+import com.sanisamoj.data.models.enums.EventType
 import com.sanisamoj.data.models.enums.InsigniaCriteriaType
 import com.sanisamoj.data.models.interfaces.DatabaseRepository
 import com.sanisamoj.data.models.interfaces.EventRepository
 import com.sanisamoj.data.models.interfaces.InsigniaRepository
 import com.sanisamoj.services.media.MediaService
+import com.sanisamoj.utils.analyzers.isInEnum
 import com.sanisamoj.utils.converters.converterStringToLocalDateTime
 import com.sanisamoj.utils.pagination.PaginationResponse
 import com.sanisamoj.utils.pagination.paginationMethod
@@ -24,6 +26,15 @@ class EventService(
     suspend fun createEvent(accountId: String, eventRequest: CreateEventRequest): EventResponse {
         val file: File = MediaService().getMedia(eventRequest.image)
         if(!file.exists()) throw CustomException(Errors.UnableToComplete)
+
+        eventRequest.type.forEach {
+            if(!it.isInEnum<EventType>()) throw CustomException(Errors.InvalidParameters)
+        }
+
+        val eventDate: LocalDateTime = converterStringToLocalDateTime(eventRequest.date)
+        if (eventDate.isBefore(LocalDateTime.now())) {
+            throw CustomException(Errors.TheEventDateCannotBeInThePast)
+        }
 
         val event = Event(
             accountId = accountId,

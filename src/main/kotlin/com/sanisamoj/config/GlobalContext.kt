@@ -8,7 +8,7 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 object GlobalContext {
-    const val VERSION: String = "0.1.14"
+    const val VERSION: String = "0.1.16"
     private val serverContainer: ServerContainer = DefaultServerContainer()
     val globalWarnings: GlobalWarnings = ResourceLoader.convertJsonInputStreamAsObject<GlobalWarnings>("/lang/pt.json")
 

@@ -2,11 +2,14 @@ package com.sanisamoj.services.user
 
 import com.sanisamoj.config.GlobalContextTest
 import com.sanisamoj.data.models.dataclass.*
+import com.sanisamoj.data.models.enums.AccountStatus
 import com.sanisamoj.data.models.enums.AccountType
 import com.sanisamoj.data.models.interfaces.DatabaseRepository
+import com.sanisamoj.database.mongodb.Fields
+import com.sanisamoj.database.mongodb.OperationField
 import java.util.UUID
 
-object UserRequestFactory {
+object UserFactoryTest {
     private val repository: DatabaseRepository = GlobalContextTest.getDatabaseRepository()
 
     const val PASSWORD_TEST: String = "securePassword123"
@@ -37,7 +40,7 @@ object UserRequestFactory {
         return Doc(type = docType, number = docNumber)
     }
 
-    fun validUserCreateRequest(): UserCreateRequest {
+    private fun validUserCreateRequest(): UserCreateRequest {
         return UserCreateRequest(
             nick = generateRandomNick(),
             bio = "I love coding and testing",
@@ -61,6 +64,10 @@ object UserRequestFactory {
         val userCreateRequest: UserCreateRequest = validUserCreateRequest()
         val userResponse: UserResponse = userService.createUser(userCreateRequest)
         return userResponse
+    }
+
+    suspend fun activateUser(userId: String) {
+        repository.updateUser(userId, OperationField(Fields.AccountStatus, AccountStatus.Active.name))
     }
 
 }

@@ -7,6 +7,7 @@ import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import com.sanisamoj.data.models.dataclass.Event
 import com.sanisamoj.utils.analyzers.dotEnv
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.toList
 import org.bson.BsonInt64
 import org.bson.Document
 import java.util.concurrent.TimeUnit
@@ -46,7 +47,17 @@ object MongoDatabase {
         val collection = db.getCollection<Event>("Events")
 
         try {
-            collection.createIndex(Indexes.geo2dsphere("address.geoCoordinates.coordinates"))
-        } catch (_: Exception) {}
+            val indexes = collection.listIndexes().toList()
+            val indexExists = indexes.any { it["name"] == "address.geoCoordinates.coordinates_2dsphere" }
+
+            if (!indexExists) {
+                collection.createIndex(Indexes.geo2dsphere("address.geoCoordinates.coordinates"))
+            } else {
+                return
+            }
+        } catch (e: Exception) {
+            println("Error creating geospatial index: ${e.message}")
+        }
     }
+
 }

@@ -8,7 +8,7 @@ import com.sanisamoj.data.models.interfaces.DatabaseRepository
 import com.sanisamoj.database.mongodb.CollectionsInDb
 import com.sanisamoj.database.mongodb.Fields
 import com.sanisamoj.database.mongodb.OperationField
-import com.sanisamoj.services.user.UserRequestFactory
+import com.sanisamoj.services.user.UserFactoryTest
 import com.sanisamoj.utils.eraseAllDataInMongodb
 import io.ktor.server.testing.*
 import kotlinx.coroutines.runBlocking
@@ -21,7 +21,10 @@ class FollowerServiceTest {
 
     @AfterTest
     fun eraseAllUserData() {
-        runBlocking { eraseAllDataInMongodb<User>(CollectionsInDb.Users) }
+        runBlocking {
+            eraseAllDataInMongodb<User>(CollectionsInDb.Users)
+            eraseAllDataInMongodb<User>(CollectionsInDb.Followers)
+        }
     }
 
     private suspend fun activateUser(userId: String) {
@@ -30,9 +33,9 @@ class FollowerServiceTest {
 
     @Test
     fun sendFollowRequestTest() = testApplication {
-        val user1: UserResponse = UserRequestFactory.createUser()
+        val user1: UserResponse = UserFactoryTest.createUser()
         activateUser(user1.id)
-        val user2: UserResponse = UserRequestFactory.createUser()
+        val user2: UserResponse = UserFactoryTest.createUser()
         activateUser(user2.id)
 
         val followerService = FollowerService(repository)
@@ -48,9 +51,9 @@ class FollowerServiceTest {
 
     @Test
     fun acceptFollowRequestTest() = testApplication {
-        val user1: UserResponse = UserRequestFactory.createUser()
+        val user1: UserResponse = UserFactoryTest.createUser()
         activateUser(user1.id)
-        val user2: UserResponse = UserRequestFactory.createUser()
+        val user2: UserResponse = UserFactoryTest.createUser()
         activateUser(user2.id)
 
         val followerService = FollowerService(repository)
@@ -72,9 +75,9 @@ class FollowerServiceTest {
 
     @Test
     fun rejectFollowRequestTest() = testApplication {
-        val user1: UserResponse = UserRequestFactory.createUser()
+        val user1: UserResponse = UserFactoryTest.createUser()
         activateUser(user1.id)
-        val user2: UserResponse = UserRequestFactory.createUser()
+        val user2: UserResponse = UserFactoryTest.createUser()
         activateUser(user2.id)
 
         val followerService = FollowerService(repository)
@@ -90,9 +93,9 @@ class FollowerServiceTest {
 
     @Test
     fun cancelFollowRequestTest() = testApplication {
-        val user1: UserResponse = UserRequestFactory.createUser()
+        val user1: UserResponse = UserFactoryTest.createUser()
         activateUser(user1.id)
-        val user2: UserResponse = UserRequestFactory.createUser()
+        val user2: UserResponse = UserFactoryTest.createUser()
         activateUser(user2.id)
 
         val followerService = FollowerService(repository)
@@ -108,9 +111,9 @@ class FollowerServiceTest {
 
     @Test
     fun removeFollowingRequest() = testApplication {
-        val user1: UserResponse = UserRequestFactory.createUser()
+        val user1: UserResponse = UserFactoryTest.createUser()
         activateUser(user1.id)
-        val user2: UserResponse = UserRequestFactory.createUser()
+        val user2: UserResponse = UserFactoryTest.createUser()
         activateUser(user2.id)
 
         val followerService = FollowerService(repository)

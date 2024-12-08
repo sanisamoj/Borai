@@ -1,3 +1,9 @@
+v0.1.16
+
+ - Testes realizados.
+
+ - Correções em fragmentos de código nos serviços baseados nos testes.
+
 v0.1.15
 
  - Adição na resposta de login, a quantidade de eventos, seguidores e seguindo.
