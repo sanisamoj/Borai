@@ -63,6 +63,10 @@ class EventService(
             } catch (_: Throwable) {}
         }
 
+        val mediaService = MediaService(repository)
+        mediaService.deleteMedia(event.image, event.accountId)
+        event.otherImages?.forEach { mediaService.deleteMedia(it, event.accountId) }
+
         eventRepository.deleteEvent(eventId)
         insigniaObserver.removePoints(accountId, InsigniaCriteriaType.Events, 1.0)
 

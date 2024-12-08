@@ -39,7 +39,7 @@ class UserManagerServiceTest {
                     dispose = { file.inputStream().close() },
                     partHeaders = Headers.build {
                         append(HttpHeaders.ContentDisposition, "form-data; name=\"$fieldName\"; filename=\"${file.name}\"")
-                        append(HttpHeaders.ContentType, ContentType.Image.JPEG.toString()) // Ajuste o tipo conforme o arquivo
+                        append(HttpHeaders.ContentType, ContentType.Image.JPEG.toString())
                     }
                 )
             }

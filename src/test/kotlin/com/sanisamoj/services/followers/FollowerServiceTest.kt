@@ -1,6 +1,7 @@
 package com.sanisamoj.services.followers
 
 import com.sanisamoj.config.GlobalContextTest
+import com.sanisamoj.data.models.dataclass.Followers
 import com.sanisamoj.data.models.dataclass.User
 import com.sanisamoj.data.models.dataclass.UserResponse
 import com.sanisamoj.data.models.enums.AccountStatus
@@ -24,6 +25,7 @@ class FollowerServiceTest {
         runBlocking {
             eraseAllDataInMongodb<User>(CollectionsInDb.Users)
             eraseAllDataInMongodb<User>(CollectionsInDb.Followers)
+            eraseAllDataInMongodb<Followers>(CollectionsInDb.InsigniaPoints)
         }
     }
 

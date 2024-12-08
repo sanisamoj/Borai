@@ -209,8 +209,8 @@ class EventHandlerService(
 
         if(eventVote.rating > 5 || eventVote.rating < 1) throw CustomException(Errors.InvalidRating)
 
-        val presence: Presence? = eventRepository.getPresenceByEventAndUser(eventVote.eventId, userId)
-        if(presence != null) throw CustomException(Errors.UserDidNotAttendEvent)
+        eventRepository.getPresenceByEventAndUser(eventVote.eventId, userId)
+            ?: throw CustomException(Errors.UserDidNotAttendEvent)
 
         eventRepository.submitEventVote(eventVote.copy(userId = userId))
 

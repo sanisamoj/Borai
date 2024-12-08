@@ -9,6 +9,7 @@ object InsigniaFactory {
         return InsigniaResponse(
             id = insignia.id.toString(),
             image = insignia.image,
+            name = insignia.name,
             description = insignia.description,
             criteria = insignia.criteria,
             quantity = insignia.quantity,

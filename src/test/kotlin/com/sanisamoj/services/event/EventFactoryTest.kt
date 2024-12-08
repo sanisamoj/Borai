@@ -4,7 +4,12 @@ import com.sanisamoj.config.GlobalContextTest
 import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.interfaces.DatabaseRepository
 import com.sanisamoj.data.models.interfaces.EventRepository
+import com.sanisamoj.services.media.MediaService
 import com.sanisamoj.utils.converters.converterStringToLocalDateTime
+import io.ktor.http.*
+import io.ktor.http.content.*
+import io.ktor.utils.io.*
+import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -12,6 +17,27 @@ import java.util.*
 object EventFactoryTest {
     private val eventRepository: EventRepository = GlobalContextTest.getEventRepository()
     private val repository: DatabaseRepository = GlobalContextTest.getDatabaseRepository()
+
+    private fun createMultiPartDataFromFile(file: File, fieldName: String = "image"): MultiPartData {
+        return object : MultiPartData {
+            private var isPartRead = false // Controla se a parte já foi lida
+
+            override suspend fun readPart(): PartData? {
+                if (isPartRead) return null // Retorna null após a primeira leitura
+                isPartRead = true
+                val byteArray = file.readBytes()
+                val byteReadChannel = ByteReadChannel(byteArray)
+                return PartData.FileItem(
+                    { byteReadChannel }, // Converte o arquivo para InputStream
+                    dispose = { file.inputStream().close() },
+                    partHeaders = Headers.build {
+                        append(HttpHeaders.ContentDisposition, "form-data; name=\"$fieldName\"; filename=\"${file.name}\"")
+                        append(HttpHeaders.ContentType, ContentType.Image.JPEG.toString())
+                    }
+                )
+            }
+        }
+    }
 
     private fun generateRandomName(): String {
         val eventNames = listOf("Tech Conference", "Music Festival", "Art Exhibition", "Startup Pitch", "Coding Bootcamp")
@@ -50,7 +76,6 @@ object EventFactoryTest {
             name = generateRandomName(),
             description = "An engaging event on ${generateRandomType().joinToString(", ")}.",
             image = "tests.jpg",
-            otherImages = listOf("tests.jpg"),
             address = generateRandomAddress(),
             date = date,
             type = generateRandomType()
@@ -59,11 +84,17 @@ object EventFactoryTest {
 
     suspend fun createEvent(userId: String): EventResponse {
         val eventRequest: CreateEventRequest = generateRandomEventRequest()
+
+        val mediaService = MediaService(repository)
+        val testFile: File = mediaService.getMedia("tests.jpg")
+        val multipartData: MultiPartData = createMultiPartDataFromFile(testFile)
+        val savedMediaStorage: List<SavedMediaResponse> = mediaService.savePublicMedia(multipartData, userId)
+
         val event = Event(
             accountId = userId,
             name = eventRequest.name,
             description = eventRequest.description,
-            image = eventRequest.image,
+            image = savedMediaStorage[0].filename,
             otherImages = eventRequest.otherImages,
             address = eventRequest.address,
             date = converterStringToLocalDateTime(eventRequest.date),

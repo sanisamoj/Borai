@@ -15,7 +15,7 @@ class InsigniaHandler(
 ) {
 
     suspend fun createInsignia(createInsigniaRequest: CreateInsigniaRequest): InsigniaResponse {
-        if(createInsigniaRequest.criteria.isInEnum<InsigniaCriteriaType>()) throw CustomException(Errors.InvalidParameters)
+        if(!createInsigniaRequest.criteria.isInEnum<InsigniaCriteriaType>()) throw CustomException(Errors.InvalidParameters)
 
         val insignia = Insignia(
             name = createInsigniaRequest.name,

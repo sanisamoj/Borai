@@ -7,10 +7,15 @@ import com.sanisamoj.data.models.enums.EventStatus
 import com.sanisamoj.data.models.interfaces.DatabaseRepository
 import com.sanisamoj.data.models.interfaces.EventRepository
 import com.sanisamoj.database.mongodb.CollectionsInDb
+import com.sanisamoj.services.media.MediaService
 import com.sanisamoj.services.user.UserFactoryTest
 import com.sanisamoj.utils.eraseAllDataInMongodb
+import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.server.testing.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
+import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.test.*
@@ -23,7 +28,28 @@ class EventServiceTest {
     fun eraseAllUserData() {
         runBlocking {
             eraseAllDataInMongodb<User>(CollectionsInDb.Users)
-            eraseAllDataInMongodb<User>(CollectionsInDb.Events)
+            eraseAllDataInMongodb<Event>(CollectionsInDb.Events)
+        }
+    }
+
+    private fun createMultiPartDataFromFile(file: File, fieldName: String = "image"): MultiPartData {
+        return object : MultiPartData {
+            private var isPartRead = false // Controla se a parte já foi lida
+
+            override suspend fun readPart(): PartData? {
+                if (isPartRead) return null // Retorna null após a primeira leitura
+                isPartRead = true
+                val byteArray = file.readBytes()
+                val byteReadChannel = ByteReadChannel(byteArray)
+                return PartData.FileItem(
+                    { byteReadChannel }, // Converte o arquivo para InputStream
+                    dispose = { file.inputStream().close() },
+                    partHeaders = Headers.build {
+                        append(HttpHeaders.ContentDisposition, "form-data; name=\"$fieldName\"; filename=\"${file.name}\"")
+                        append(HttpHeaders.ContentType, ContentType.Image.JPEG.toString())
+                    }
+                )
+            }
         }
     }
 
@@ -32,12 +58,17 @@ class EventServiceTest {
         val user: UserResponse = UserFactoryTest.createUser()
         UserFactoryTest.activateUser(user.id)
 
+        val mediaService = MediaService(repository)
+        val testFile: File = mediaService.getMedia("tests.jpg")
+        val multipartData: MultiPartData = createMultiPartDataFromFile(testFile)
+        val savedMediaStorage: List<SavedMediaResponse> = mediaService.savePublicMedia(multipartData, user.id)
+
         val eventService = EventService(eventRepository, repository)
         val createEventRequest: CreateEventRequest = EventFactoryTest.generateRandomEventRequest()
-        val eventResponse: EventResponse = eventService.createEvent(user.id, createEventRequest)
+        val eventResponse: EventResponse = eventService.createEvent(user.id, createEventRequest.copy(image = savedMediaStorage[0].filename))
         assertEquals(createEventRequest.name, eventResponse.name)
         assertEquals(createEventRequest.description, eventResponse.description)
-        assertEquals(createEventRequest.image, eventResponse.image)
+        assertTrue(createEventRequest.image.contains("tests.jpg"))
         assertEquals(createEventRequest.otherImages, eventResponse.otherImages)
         assertEquals(createEventRequest.address, eventResponse.address)
         assertEquals(createEventRequest.type, eventResponse.type)
@@ -56,8 +87,16 @@ class EventServiceTest {
         val eventService = EventService(eventRepository, repository)
         val createEventRequest: CreateEventRequest = EventFactoryTest.generateRandomEventRequest()
 
+        val mediaService = MediaService(repository)
+        val testFile: File = mediaService.getMedia("tests.jpg")
+        val multipartData: MultiPartData = createMultiPartDataFromFile(testFile)
+        val savedMediaStorage: List<SavedMediaResponse> = mediaService.savePublicMedia(multipartData, user.id)
+
         val exception: CustomException = assertFailsWith {
-            eventService.createEvent(user.id, createEventRequest.copy(type = listOf("Wrong")))
+            eventService.createEvent(user.id, createEventRequest.copy(
+                image = savedMediaStorage[0].filename,
+                type = listOf("Wrong"))
+            )
         }
 
         assertEquals(Errors.InvalidParameters, exception.error)
@@ -107,7 +146,11 @@ class EventServiceTest {
         val eventService = EventService(eventRepository, repository)
 
         val createEventRequest: CreateEventRequest = EventFactoryTest.generateRandomEventRequest()
-        val eventResponse: EventResponse = eventService.createEvent(ownerUser.id, createEventRequest)
+        val mediaService = MediaService(repository)
+        val testFile: File = mediaService.getMedia("tests.jpg")
+        val multipartData: MultiPartData = createMultiPartDataFromFile(testFile)
+        val savedMediaStorage: List<SavedMediaResponse> = mediaService.savePublicMedia(multipartData, ownerUser.id)
+        val eventResponse: EventResponse = eventService.createEvent(ownerUser.id, createEventRequest.copy(image = savedMediaStorage[0].filename))
 
         val exception = assertFailsWith<CustomException> {
             eventService.deleteEvent(eventResponse.id, otherUser.id)
@@ -122,9 +165,13 @@ class EventServiceTest {
         UserFactoryTest.activateUser(user.id)
 
         val eventService = EventService(eventRepository, repository)
+        val mediaService = MediaService(repository)
+        val testFile: File = mediaService.getMedia("tests.jpg")
+        val multipartData: MultiPartData = createMultiPartDataFromFile(testFile)
+        val savedMediaStorage: List<SavedMediaResponse> = mediaService.savePublicMedia(multipartData, user.id)
 
-        val eventRequest1 = EventFactoryTest.generateRandomEventRequest().copy(name = "Tech Conference 2024", type = listOf("Technology"))
-        val eventRequest2 = EventFactoryTest.generateRandomEventRequest().copy(name = "Music Festival", type = listOf("Educational"))
+        val eventRequest1 = EventFactoryTest.generateRandomEventRequest().copy(name = "Tech Conference 2024", type = listOf("Technology"), image = savedMediaStorage[0].filename)
+        val eventRequest2 = EventFactoryTest.generateRandomEventRequest().copy(name = "Music Festival", type = listOf("Educational"), image = savedMediaStorage[0].filename)
         eventService.createEvent(user.id, eventRequest1)
         eventService.createEvent(user.id, eventRequest2)
 
@@ -277,17 +324,24 @@ class EventServiceTest {
             size = 10
         )
 
+        val mediaService = MediaService(repository)
+        val testFile: File = mediaService.getMedia("tests.jpg")
+        var multipartData: MultiPartData = createMultiPartDataFromFile(testFile)
+        var savedMediaStorage: List<SavedMediaResponse> = mediaService.savePublicMedia(multipartData, user.id)
+
         // Create events near and far to ensure only upcoming ones are returned
         val nearbyEventRequest = EventFactoryTest.generateRandomEventRequest().copy(
             name = "Nearby Event",
+            image = savedMediaStorage[0].filename,
             address = Address(
                 geoCoordinates = GeoCoordinates(coordinates = listOf(-46.630308, -23.555520)),
                 uf = "SP"
-            )
+            ),
         )
 
         val distantEventRequest = EventFactoryTest.generateRandomEventRequest().copy(
             name = "Distant Event",
+            image = savedMediaStorage[0].filename,
             address = Address(
                 geoCoordinates = GeoCoordinates(coordinates = listOf(-23.700520, -46.750308)),
                 uf = "SP"
@@ -310,8 +364,11 @@ class EventServiceTest {
             type = listOf("Technology")
         )
 
+        multipartData = createMultiPartDataFromFile(testFile)
+        savedMediaStorage = mediaService.savePublicMedia(multipartData, user.id)
         val techEventRequest = EventFactoryTest.generateRandomEventRequest().copy(
             name = "Tech Event",
+            image = savedMediaStorage[0].filename,
             type = listOf("Technology"),
             address = Address(
                 geoCoordinates = GeoCoordinates(coordinates = listOf(-46.630308, -23.555520)),
@@ -321,6 +378,7 @@ class EventServiceTest {
 
         val otherEventRequest = EventFactoryTest.generateRandomEventRequest().copy(
             name = "Sports Event",
+            image = savedMediaStorage[0].filename,
             type = listOf("Sports"),
             address = Address(
                 geoCoordinates = GeoCoordinates(coordinates = listOf(-23.555520, -46.630308)),
@@ -343,8 +401,11 @@ class EventServiceTest {
             maxDistanceMeters = 1000 // Smaller distance than available events
         )
 
+        multipartData = createMultiPartDataFromFile(testFile)
+        savedMediaStorage = mediaService.savePublicMedia(multipartData, user.id)
         val distantEventRequestOutOfRange = EventFactoryTest.generateRandomEventRequest().copy(
             name = "Distant Event",
+            image = savedMediaStorage[0].filename,
             address = Address(
                 geoCoordinates = GeoCoordinates(coordinates = listOf(-90.700520, -46.750308)), // Out of range
                 uf = "SP"
@@ -356,7 +417,5 @@ class EventServiceTest {
 
         assertEquals(0, responseNoEventsInRange.content.size)
     }
-
-
 
 }

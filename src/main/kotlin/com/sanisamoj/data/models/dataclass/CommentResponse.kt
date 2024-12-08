@@ -8,7 +8,7 @@ data class CommentResponse(
     val eventId: String,
     val userId: String,
     val nick: String,
-    val imageProfile: String,
+    val imageProfile: String?,
     val comment: String,
     val parentId: String?,
     val answersCount: Int,

@@ -9,7 +9,7 @@ data class Comment(
     val eventId: String,
     val userId: String,
     val nick: String,
-    val imageProfile: String,
+    val imageProfile: String?,
     val text: String,
     val parentId: String? = null,
     val answersCount: Int = 0,
