@@ -126,7 +126,7 @@ object MailBuilder {
                             li { +"Criar e gerenciar eventos." }
                             li { +"Marcar presença em eventos." }
                             li { +"Comentar em eventos criados." }
-                            li { +"Avaliar eventos e contar Promoters." }
+                            li { +"Avaliar eventos e contas Promoters." }
                             li { +"Buscar eventos a partir de filtros específicos." }
                             li { +"Receber pontuações/Insígnias em condições específicas de uso da plataforma." }
                         }

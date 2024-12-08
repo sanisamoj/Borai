@@ -28,6 +28,9 @@ WORKDIR /app
 COPY .env .
 COPY --from=build /app/target/borai-0.1.16-jar-with-dependencies.jar borai.jar
 
+# Cria a pasta 'uploads' ao lado do .jar
+RUN mkdir /app/uploads
+
 # Exponha a porta 7373
 EXPOSE 7373
 
