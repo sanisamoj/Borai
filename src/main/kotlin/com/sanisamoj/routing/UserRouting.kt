@@ -384,7 +384,11 @@ fun Route.userRouting() {
         get("/{name?}") {
             val mediaName: String = call.parameters["name"].toString()
             val file = MediaService().getMedia(mediaName)
-            if (file.exists()) return@get call.respondFile(file)
+            if (file.exists()) return@get call.respond(object : OutgoingContent.ByteArrayContent() {
+                override val contentType: ContentType = ContentType.defaultForFile(file)
+                override val contentLength: Long = file.length()
+                override fun bytes(): ByteArray = file.readBytes()
+            })
             else return@get call.respond(HttpStatusCode.NotFound)
         }
     }
