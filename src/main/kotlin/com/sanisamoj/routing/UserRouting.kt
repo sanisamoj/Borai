@@ -3,15 +3,12 @@ package com.sanisamoj.routing
 import com.sanisamoj.config.GlobalContext
 import com.sanisamoj.data.models.dataclass.*
 import com.sanisamoj.data.models.enums.Errors
-import com.sanisamoj.data.models.enums.EventStatus
-import com.sanisamoj.services.event.EventManagerService
 import com.sanisamoj.services.event.EventService
 import com.sanisamoj.services.followers.FollowerService
 import com.sanisamoj.services.media.MediaService
 import com.sanisamoj.services.user.UserAuthenticationService
 import com.sanisamoj.services.user.UserManagerService
 import com.sanisamoj.services.user.UserService
-import com.sanisamoj.utils.analyzers.isInEnum
 import com.sanisamoj.utils.converters.BytesConverter
 import io.ktor.http.*
 import io.ktor.http.content.*
@@ -24,7 +21,7 @@ import io.ktor.server.routing.*
 
 fun Route.userRouting() {
 
-    route("/user") {
+    route("/users") {
 
         rateLimit(RateLimitName("register")) {
 
@@ -174,84 +171,6 @@ fun Route.userRouting() {
                 val accountId = principal.payload.getClaim("id").asString()
                 val minimalUserResponseList: List<MinimalUserResponse> = FollowerService().getPendingSentRequests(accountId)
                 return@get call.respond(minimalUserResponseList)
-            }
-
-            // Responsible for update event
-            put("/event") {
-                val principal: JWTPrincipal = call.principal()!!
-                val userId: String = principal.payload.getClaim("id").asString()
-                val eventId: String = call.parameters["eventId"].toString()
-                val putEventRequest: PutEventRequest = call.receive<PutEventRequest>()
-                val eventManagerService = EventManagerService()
-                var updatedEventResponse: EventResponse
-
-                when {
-                    putEventRequest.name != null -> {
-                        updatedEventResponse = eventManagerService.updateName(eventId, userId, putEventRequest.name)
-                    }
-                    putEventRequest.description != null -> {
-                        updatedEventResponse = eventManagerService.updateDescription(eventId, userId, putEventRequest.description)
-                    }
-                    putEventRequest.address != null -> {
-                        updatedEventResponse = eventManagerService.updateAddress(eventId, userId, putEventRequest.address)
-                    }
-                    putEventRequest.date != null -> {
-                        updatedEventResponse = eventManagerService.updateDate(eventId, userId, putEventRequest.date)
-                    }
-                    putEventRequest.type != null -> {
-                        updatedEventResponse = eventManagerService.updateType(eventId, userId, putEventRequest.type)
-                    }
-                    putEventRequest.status != null -> {
-                        if(!putEventRequest.status.isInEnum<EventStatus>()) throw CustomException(Errors.InvalidParameters)
-                        updatedEventResponse = eventManagerService.updateStatus(eventId, userId, putEventRequest.status)
-                    }
-                    else -> {
-                        return@put call.respond(HttpStatusCode.BadRequest, "No valid data to update")
-                    }
-                }
-
-                return@put call.respond(updatedEventResponse)
-            }
-
-            // Responsible for update principal image from the event
-            put("/event-img") {
-                val principal: JWTPrincipal = call.principal()!!
-                val userId: String = principal.payload.getClaim("id").asString()
-                val eventId: String = call.parameters["eventId"].toString()
-
-                val multipartData: MultiPartData = call.receiveMultipart()
-                val requestSize: String? = call.request.headers[HttpHeaders.ContentLength]
-                val requestSizeInMb: Double = BytesConverter(requestSize!!.toLong()).getInMegabyte()
-                if (requestSizeInMb > GlobalContext.MAX_HEADERS_SIZE) throw CustomException(Errors.TheLimitMaxImageAllowed)
-
-                val eventResponse: EventResponse = EventManagerService().updatePrincipalImage(eventId, userId, multipartData)
-                return@put call.respond(eventResponse)
-            }
-
-            // Responsible for add image to the event
-            post("/event-img") {
-                val principal: JWTPrincipal = call.principal()!!
-                val userId: String = principal.payload.getClaim("id").asString()
-                val eventId: String = call.parameters["eventId"].toString()
-
-                val multipartData: MultiPartData = call.receiveMultipart()
-                val requestSize: String? = call.request.headers[HttpHeaders.ContentLength]
-                val requestSizeInMb: Double = BytesConverter(requestSize!!.toLong()).getInMegabyte()
-                if (requestSizeInMb > GlobalContext.MAX_HEADERS_SIZE) throw CustomException(Errors.TheLimitMaxImageAllowed)
-
-                val eventResponse: EventResponse = EventManagerService().addImageToEvent(eventId, userId, multipartData)
-                return@post call.respond(eventResponse)
-            }
-
-            // Responsible for delete image to the event
-            delete("/event-img") {
-                val principal: JWTPrincipal = call.principal()!!
-                val userId: String = principal.payload.getClaim("id").asString()
-                val eventId: String = call.parameters["eventId"].toString()
-                val filename: String = call.parameters["filename"].toString()
-
-                val eventResponse: EventResponse = EventManagerService().removeImageFromEvent(eventId, userId, filename)
-                return@delete call.respond(eventResponse)
             }
 
             // Responsible for returning mediaStorage from the User

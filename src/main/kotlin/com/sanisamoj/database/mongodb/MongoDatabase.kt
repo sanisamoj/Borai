@@ -14,29 +14,59 @@ import java.util.concurrent.TimeUnit
 
 object MongoDatabase {
     private var database: MongoDatabase? = null
-    private lateinit var client : MongoClient
-    private val connectionString: String = dotEnv("MONGODB_SERVER_URL")
-    private val nameDatabase : String = dotEnv("NAME_DATABASE")
+    private lateinit var client: MongoClient
+
+    // Obtenção de variáveis de ambiente do .env (ou variáveis definidas no Docker Compose)
+    private val mongoUser: String = dotEnv("MONGODB_INITDB_ROOT_USERNAME")
+    private val mongoPassword: String = dotEnv("MONGODB_INITDB_ROOT_PASSWORD")
+    private val mongodb : String = dotEnv("MONGODB")
+    private val mongoPort: String = dotEnv("MONGODB_PORT")
+    private val connectionString: String = "mongodb://$mongoUser:$mongoPassword@${mongodb}:$mongoPort"  // Usando a senha e usuário do Docker
+    private val nameDatabase: String = dotEnv("NAME_DATABASE")
 
     private suspend fun init() {
-        client = MongoClient.create(connectionString)
-        val db: MongoDatabase = client.getDatabase(nameDatabase)
-
         try {
+            // Tentar conexão com autenticação
+            client = MongoClient.create(connectionString)
+            val db: MongoDatabase = client.getDatabase(nameDatabase)
+
+            // Verificar a conexão
             val command = Document("ping", BsonInt64(1))
             db.runCommand(command)
-            println("You successfully connected to MongoDB!")
+            println("You successfully connected to MongoDB with authentication!")
             database = db
             createGeospatialIndex(db)
         } catch (me: MongoException) {
-            System.err.println(me)
-            println("A new attempt will be made to reconnect to mongodb in 30s.")
-            delay(TimeUnit.SECONDS.toMillis(30))
-            init()
+            println("Error connecting with authentication: ${me.message}")
+            println("Trying connection without authentication...")
+
+            // Caso falhe, tente a conexão sem senha
+            val connectionStringWithoutAuth = "mongodb://$mongodb:$mongoPort"  // Remover usuário e senha
+            try {
+                client = MongoClient.create(connectionStringWithoutAuth)
+                val db: MongoDatabase = client.getDatabase(nameDatabase)
+
+                // Verificar a conexão
+                val command = Document("ping", BsonInt64(1))
+                db.runCommand(command)
+                println("You successfully connected to MongoDB without authentication!")
+                database = db
+                createGeospatialIndex(db)
+            } catch (e: MongoException) {
+                println("Error connecting without authentication: ${e.message}")
+                println("A new attempt will be made to reconnect to mongodb in 30s.")
+                delay(TimeUnit.SECONDS.toMillis(30))
+                init() // Tentativa de reconectar
+            }
+        } catch (e: Exception) {
+            println("Unexpected error: ${e.message}")
         }
     }
 
-    suspend fun initialize() { if (database == null) init() }
+
+    suspend fun initialize() {
+        if (database == null) init()
+    }
 
     suspend fun getDatabase(): MongoDatabase {
         if (database == null) init()
@@ -59,5 +89,4 @@ object MongoDatabase {
             println("Error creating geospatial index: ${e.message}")
         }
     }
-
 }

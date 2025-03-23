@@ -147,6 +147,13 @@ MODERATOR_SECRET=
 #### Execute o comando a seguir para executar a imagem criada com o Docker.
 
     docker run --name borai -p 7373:7373 borai:latest
+
+#### Para uma maior comodidade, execute o comando do Docker-compose.
+
+    docker-compose up -d
+
+> A configuração dos microserviços tais como NotifyBot e EventLoggerServer, devem ser feitas manualmente. 
+> O Compose apenas irá inicializar os bancos de dados e a aplicação principal.
   
 
 ## Endpoints disponíveis
